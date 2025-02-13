@@ -32,15 +32,20 @@ export function RoomMediaPlugin({pluginUuid: uuid}: RoomMediaPluginProps) {
     }
 
     console.log('Plugin settings:', pluginSettings);
+    let room_hub_url = "";
 
     const createWebSocket = () => {
 
+        console.log('Creating websocket, plugin settings:', pluginSettings);
         if (!pluginSettings || typeof pluginSettings.pairingWebsocketUrl !== 'string') {
             console.error('Plugin settings or pairingWebsocketUrl URL not yet available');
-            return;
+            room_hub_url = "https://roomhub-bigbluebutton-openstack.uni-osnabrueck.de";
+            //return;
+        } else {
+          room_hub_url = pluginSettings.pairingWebsocketUrl;
         }
 
-        const ws = new WebSocket(pluginSettings.pairingWebsocketUrl);
+        const ws = new WebSocket(room_hub_url);
         ws.onopen = () => {
             // Send user input to WebSocket
             if (ws.readyState === WebSocket.OPEN) {
