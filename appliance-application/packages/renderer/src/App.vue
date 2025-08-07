@@ -559,7 +559,7 @@ const discardConfigChanges = () => {
           <div class="settings-footer">
             <button class="settings-button settings-button-discard"
               @click="discardConfigChanges()">Discard</button>
-            <button class="settings-button settings-button-save" @click="saveConfig(config)">Save</button>
+            <button class="settings-button settings-button-save" @click="saveConfig()">Save</button>
           </div>
         </div>
       </div>
