@@ -1,4 +1,4 @@
-import {createApp} from 'vue';
+import {createApp, reactive} from 'vue';
 import App from '/@/App.vue';
 
 import '/@/style.css';
@@ -8,7 +8,7 @@ const { config, path }  = await window.electronAPI.getSettings();
 
 const app = createApp(App);
 
-app.provide('config', config);
+app.provide('config', reactive(config))
 app.provide('configPath', path);
 
 app.mount('#app');

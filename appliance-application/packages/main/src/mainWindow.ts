@@ -1,10 +1,13 @@
-import {app, BrowserWindow, ipcMain} from 'electron';
+import {app, BrowserWindow, ipcMain, shell} from 'electron';
 import {join, resolve} from 'node:path';
 import {createBBBMeeting} from './BBBMeeting';
 import {fileURLToPath} from 'url';
 import path from 'path';
-import {config, configPath, displayManager, hdiDevices} from './index';
+import {displayManager, hdiDevices} from './index';
+import {config, configPath, saveConfig} from './ConfigManager';
+import type {Config} from './ConfigManager';
 import {StreamDeckHID} from './streamdeck';
+import { createMeetingRoomProvider } from './meeting_room_provider/meetingProviderFactory';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -13,6 +16,9 @@ const __dirname = path.dirname(__filename);
  * Create the main window of the application, the PIN screen.
  */
 async function createWindow() {
+
+  const meetingRoomProvider = createMeetingRoomProvider(config.meeting_provider);
+
   // Get the display for the pin screen
   const pinDisplay = getPINScreen();
 
@@ -41,6 +47,10 @@ async function createWindow() {
     return {path: configPath, config};
   });
 
+  ipcMain.handle('saveConfig', (event, config: Config) => {
+    saveConfig(config);
+  });
+
   // Message from the UI that a verification is required
   // User can accept/decline the verification in the UI or by using HDI devices
   ipcMain.on('requireVerification', () => {
@@ -60,8 +70,9 @@ async function createWindow() {
   });
 
   // Message from the UI to join the meeting
-  ipcMain.on('joinMeeting', async (event, joinUrl: string, layoutIndex: number) => {
-    console.log('joinMeeting', joinUrl);
+  //ipcMain.on('joinMeeting', async (event, joinUrl: string, layoutIndex: number) => {
+  ipcMain.on('joinMeeting', async (event, meeting: any, layoutIndex: number) => {
+    //console.log('joinMeeting', meeting);
 
     // Callback: Appliance has left the meeting or the meeting has ended
     const leftCallback = () => {
@@ -83,6 +94,10 @@ async function createWindow() {
 
     // Get selected layout
     const layout = config.room.layouts[layoutIndex];
+
+    // Get the join URL
+    console.log("Requesting join URL from Meeting Room Provider");
+    const joinUrl = await meetingRoomProvider.getJoinUrl(meeting, config);
 
     const bbbMeeting = await createBBBMeeting(joinUrl, displayManager, leftCallback);
 
@@ -170,6 +185,18 @@ async function createWindow() {
         },
       });
     });
+  });
+
+  ipcMain.handle('requestMeetingRooms', async () => {
+    const meetingRooms = await meetingRoomProvider.requestMeetingRooms(config);
+    console.log('meetingRooms', meetingRooms);
+    return meetingRooms;
+  });
+
+  ipcMain.handle('requestAvailableDisplays', async () => {
+    const displays = await displayManager.getDisplays();
+    // we just need the display names as a list
+    return displays.map(display => display.label);
   });
 
   // Message from UI to close the app

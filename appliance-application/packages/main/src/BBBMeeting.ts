@@ -3,12 +3,14 @@ import type {ApolloClient, NormalizedCacheObject} from '@apollo/client/core';
 import {gql} from '@apollo/client/core';
 import {BBBGraphQl} from './BBBGraphQl';
 import type {DisplayManager} from './displayManager';
-import type {Layout} from '../../common/config';
+import type { Layout } from './ConfigManager';
 import {v7 as uuid} from 'uuid';
 
 export async function createBBBMeeting(control: string, displayManager: DisplayManager, leftCallback: () => void) {
 
+  console.log('Creating BBBGraphQL instance');
   const bbbGraphQl = new BBBGraphQl(control);
+  console.log('Connecting to BBB GraphQl');
   const connected = await bbbGraphQl.connect(leftCallback);
   if (!connected) return false;
 
@@ -129,15 +131,23 @@ class BBBMeeting {
     this.mediaScreen = undefined;
     this.screens = {};
 
-    for (const [key, value] of Object.entries(layout.screens)) {
-      console.log("\nProcessing screen: " + key);
-      console.log("With value: " + value + "\n");
+    //for (const [key, value] of Object.entries(layout.screens)) {
+    for (const screen of layout.screens) {
+      console.log("\nProcessing screen: " + screen.name);
+      console.log("With join parameters: " + screen.bbb_join_parameters + "\n");
+
+      // convert the join parameters to a dictionary
+      const joinParameters: {[key: string]: string} = {};
+      for (const joinParameter of screen.bbb_join_parameters) {        
+        joinParameters[joinParameter.key] = joinParameter.value as string;;
+      }
+
       const joinUrl = await this.bbbGraphQl.getJoinURL({
-        sessionName: key,
+        sessionName: screen.name,
         duplicateSession: false,
-        ...value.bbb_join_parameters,
+        ...joinParameters,
       });
-      this.screens[key] = joinUrl.data.response.url;
+      this.screens[screen.name] = joinUrl.data.response.url;
     }
 
     let newWindows: {[key: string]: BrowserWindow} = {};

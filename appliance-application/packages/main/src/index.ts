@@ -7,13 +7,13 @@ import {autoUpdater} from 'electron-updater';
 import fs from 'fs';
 import {DisplayManager} from './displayManager';
 import type {HID} from './HID';
-import type {Config} from '../../common/config.ts';
+import {loadConfig, config} from './ConfigManager';
 import {KeyboardHID} from '/@/keyboard';
 
 export let displayManager: DisplayManager;
 export const hdiDevices: HID[] = [];
-export let config: Config;
-export let configPath: string;
+//export let config: Config;
+//export let configPath: string;
 
 /**
  * Prevent electron from running multiple instances.
@@ -81,18 +81,6 @@ if (import.meta.env.PROD) {
     .catch((e) => console.error('Failed check updates:', e));
 }
 */
-
-function loadConfig() {
-  // Loading config file
-  const appUserDataPath = app.getPath('userData');
-  configPath = appUserDataPath + '/settings.json';
-  try {
-    config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-    console.log('Config loaded from ' + configPath);
-  } catch (error) {
-    console.log('Error reading config from ' + configPath, error);
-  }
-}
 
 function loadDisplays() {
   displayManager = new DisplayManager();

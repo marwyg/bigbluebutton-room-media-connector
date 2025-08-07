@@ -5,14 +5,13 @@ export class KeyboardHID implements HID {
 
   private hasVerificationPending = false;
 
-  private acceptCallback: () => void;
-  private rejectCallback: () => void;
+  private acceptCallback: () => void = () => {};
+  private rejectCallback: () => void = () => {};
 
-  private leaveCallback: () => void;
-  private leaveCallback: () => void;
-  private muteCallback: () => void;
-  private unmuteCallback: () => void;
-  private isConnected: boolean;
+  private leaveCallback: () => void = () => {};
+  private muteCallback: () => void = () => {};
+  private unmuteCallback: () => void = () => {};
+  private isConnected: boolean = false;
 
   constructor() {
     globalShortcut.register('CommandOrControl+Alt+M', () => {

@@ -1,3 +1,430 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+body {
+  margin: 0;
+  font-size: 14px;
+  font-family: Arial, sans-serif;
+  background-color: #f4f7fa;
+}
+
+/* Flexbox wrapper for the entire layout */
+/* Contains the Headline + the two boxes */
+.flex-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4vh;
+  min-height: 96vh;
+}
+
+.simple-side-by-side {
+  display: flex;
+}
+
+/* Styles for the headline */
+
+.headline {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.headline-title {
+  font-size: 1.6rem;
+  font-weight: bold;
+  color: #0057a3;
+  letter-spacing: -1px;
+}
+
+.headline-subtitle {
+  font-size: 0.7rem;
+  color: #555;
+  opacity: 0.7;
+  text-align: center;
+  padding-top: 5px;
+  max-width: 300px;
+}
+
+/* Styles for the box layout */
+
+.box-wrapper {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+  align-content: center;
+  justify-content: center;
+}
+
+.box-header {
+  background: #0057a3;
+  color: #fff;
+  border-radius: 8px 8px 0 0;
+  display: flex;
+  padding: 1rem;
+  font-weight: bold;
+}
+
+.box {
+  background: white;
+  border-radius: 0 0 8px 8px;
+  display: flex;
+  flex-direction: column;
+  width: 350px;
+  min-height: 33rem;
+  max-height: 33rem;
+  box-shadow: 0px 6px 10px 0px rgba(0, 0, 0, 0.1);
+  padding: 0 20px;
+  box-sizing: border-box;
+}
+
+.box--no-bottom-styling {
+  border-radius: 0;    
+}
+
+.box h3 {
+  font-size: 1rem;
+  text-align: center;
+  margin-top: 34px;
+  margin-bottom: 12px;
+  font-weight: bold;
+}
+
+/* Styles for the left box */
+
+.temporary-code {
+  font-family: "Roboto Mono", "Consolas", monospace;
+  font-size: 1rem;
+  letter-spacing: 1.3rem;
+  background: #f0f4fa;
+  border: 2px solid #0057a3;
+  border-radius: 8px;
+  color: #0057a3;
+  padding: 1rem 0;
+  padding-left: 1rem;
+  text-align: center;
+  display: block;
+  box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.04);
+  position: relative;
+}
+
+.temporary-code-icon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+}
+
+.box-description {
+  text-align: center;
+  color: #555;
+  opacity: 0.7;
+  padding: 24px 20px;
+  font-size: 0.7rem;
+}
+
+/* Styles for the meeting list */
+
+.meeting-list-item {
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.meeting-list-item button {
+  background-color: #0057a3;
+  color: white;
+  border: none;
+  padding: 0.5rem 0.75rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.scrollable {
+  overflow-y: auto;
+  padding-right: 14px;  
+}
+
+.right-box-description {
+  text-align: center;
+  color: #555;
+  opacity: 0.7;
+  padding: 24px 20px;
+  font-size: 0.7rem;
+  margin-top: auto;
+  margin-bottom: 12px;
+}
+
+/* Styles for the read more section */
+
+.read-more summary {
+  cursor: pointer;
+  color: #0057a3;
+  font-weight: bold;
+  margin-top: 12px;
+  outline: none;
+}
+
+.read-more[open] summary {
+  margin-bottom: 3px;
+}
+
+/* Restyle the scrollbar */
+
+.scrollable::-webkit-scrollbar {
+  width: 0.6rem;
+  background: #e4ebf7;
+  border-radius: 8px;  
+}
+
+.scrollable::-webkit-scrollbar-thumb {
+  background: #a5bddf;
+  border-radius: 8px;
+}
+
+.scrollable::-webkit-scrollbar-thumb:hover {
+  background: #0057a3;
+}
+
+/* Styles for the settings */
+
+.settings-content {
+  margin-top: 1.5rem;  
+}
+
+.setting-title {
+  margin-bottom: 1rem;
+  font-weight: bold;
+  color: #0057a3;
+}
+
+.setting-name {
+  margin-left: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.setting-description {
+  margin-bottom: 1rem;
+  margin-left: 0.5rem;
+  color: #555;
+  opacity: 0.7;
+  width: 30rem;
+}
+
+.settings-divider {
+  margin-bottom: 1.5rem;
+  border-top: 1px solid #555;
+  opacity: 0.2;
+}
+
+.checkbox-setting-container {
+  display: flex;
+  flex-direction: row;
+  gap: 2rem;
+}
+
+.general-input {
+  margin-bottom: 1.5rem;
+  margin-left: 0.4rem;
+  border-radius: 8px;
+  padding: 0.5rem 0.5rem;
+  color: #333;
+  border: 2px solid #0057a3;
+  background-color: #f0f4fa;
+  width: 36rem;
+}
+
+/* Make the preview text less visible */
+input::placeholder {
+  opacity: 0.5;
+  font-style: italic;
+}
+
+/* Styles for the toggle button */
+
+/* Hide the default checkbox */
+.toggle-checkbox {
+  display: none;
+}
+
+.toggle-label {
+  display: block;
+  width: 60px;
+  height: 30px;
+  background-color: #ccc;
+  border-radius: 15px;
+  position: relative;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.toggle-label::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 24px;
+  height: 24px;
+  background-color: white;
+  border-radius: 50%;
+  transition: transform 0.3s ease;
+}
+
+.toggle-checkbox:checked + .toggle-label {
+  background-color: #0057a3;
+}
+
+.toggle-checkbox:checked + .toggle-label::after {
+  transform: translateX(30px);
+}
+
+/* css for the selectboxes */
+select {
+  margin-bottom: 1.5rem;
+  margin-left: 0.4rem;
+  border-radius: 8px;
+
+  min-width: 30%;
+  padding: 0.6rem 0.8rem;
+  color: #333;
+  border: 2px solid #0057a3;
+  background-color: #f0f4fa;
+
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+
+  background-image: url('data:image/svg+xml;utf8,<svg fill="%23666" height="10" width="12" xmlns="http://www.w3.org/2000/svg"><polygon points="0,3 12,3 6,9 6,9"/></svg>');
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 10px 10px;
+
+  cursor: pointer;
+}
+
+select:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+  outline: none;
+}
+
+.settings-button {
+  border: none;
+  color: white;
+  border-radius: 12px;
+  font-weight: bold;
+  font-size: medium;
+  cursor: pointer;
+  height: 2rem;
+  width: 2rem;
+}
+
+.button-wrapper {
+  display: flex;
+  justify-content: center;
+  min-width: 5rem;
+}
+
+.settings-button-delete {
+  background-color: #d44141;
+  margin-top: 0.25rem;
+  transition: transform 0.05s ease-in-out;
+  width: auto;
+  padding: 0 0.75rem;
+}
+
+.settings-button-add {
+  background-color: #0057a3;
+  margin-bottom: 1.5rem;
+  width: auto;
+  padding: 0 0.75rem;
+}
+
+.settings-button:hover {
+  transform: scale(1.1);
+}
+
+.settings-button:active {
+  transform: scale(0.95);
+}
+
+.join-param-key {
+  margin-left: 0.7rem;
+  padding: 0.25rem 0.5rem;
+  color: #313664;
+  border: 1px solid #ced6e2;
+  background-color: #f0f4fa;
+  flex: 1;
+}
+
+.join-param-value {
+  padding: 0.25rem 0.5rem;
+  border: 1px solid #ced6e2;
+  background-color: #f0f4fa;
+  flex: 1;
+}
+
+.join-param-value-toggle {
+  padding: 0.25rem 0.5rem;
+  border: 1px solid #ced6e2;
+  background-color: #f0f4fa;
+  flex: 1;
+}
+
+.layout-divider {
+  margin: 0 auto 2em auto;
+  width: 100%;
+  height: 3px;
+  border-radius: 50px;
+  background: linear-gradient(to right, transparent, #0057a373, transparent);
+}
+
+.layout-title {
+  color: #0057a3;
+  font-style: italic;
+  margin-bottom: 0.7rem;
+  margin-top: 3rem;
+  text-align: center;
+}
+
+.settings-footer {
+  display: flex;
+  padding: 1rem 2rem 1rem 0;  
+  align-items: end;
+  justify-content: end;
+  gap: 0.75rem;
+  background-color: #fafafa;
+  border-radius: 0 0 8px 8px;
+  box-shadow: 0px 6px 10px 0px rgba(0, 0, 0, 0.1);
+  border-top: #e2e2e2 solid 2px;
+}
+
+.settings-button-save {
+  background-color: #00aa44;  
+  transition: transform 0.05s ease-in-out;  
+  width: 7rem;
+  height: 2.5rem;
+}
+
+.settings-button-discard {
+  background-color: #d44141;
+  transition: transform 0.05s ease-in-out;
+  width: 7rem;
+  height: 2.5rem;
+}
+
+.fading-line {
+  height: 0.5rem;
+}

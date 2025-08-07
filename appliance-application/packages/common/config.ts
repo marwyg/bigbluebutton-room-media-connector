@@ -1,4 +1,8 @@
 export type Config = {
+
+  show_pin_display: boolean;
+  show_meeting_list: boolean;
+
   control_server: {
     ws: string;
     reconnect_interval: number;
@@ -10,7 +14,18 @@ export type Config = {
   debug: boolean;
   keyboard_hid: boolean;
   room: RoomConfig;
+  // Array of MeetingConfigs 
+  meetings: MeetingConfig[];
+  meeting_provider: string;
+  meeting_provider_url: string;
 };
+
+export type MeetingConfig = {
+  link: string;
+  name?: string;
+  description?: string;
+}
+
 export type RoomConfig = {
   bbb_user_name: string;
   layouts: Layout[]

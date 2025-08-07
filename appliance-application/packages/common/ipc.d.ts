@@ -1,11 +1,15 @@
 type getSettings = () => Promise<{ config: Config; path: string }>;
+type saveSettings = (config: Config) => Promise<void>;
 type close = () => void;
 type requireVerification = () => void;
 type verificationAccepted = () => void;
 type verificationRejected = () => void;
 // @TODO: Remove, old implementation where the plugin generated the join URLs
 // type joinMeeting = (urls: string) => void;
-type joinMeeting = (url: string, layoutIndex: number) => void;
+//type joinMeeting = (url: string, layoutIndex: number) => void;
+type joinMeeting = (meeting: any, layoutIndex: number) => void;
+type requestMeetingRooms = () => Promise<Record<string, string>[]>;
+type requestAvailableDisplays = () => Promise<String[]>;
 type pluginDisconnected = () => void;
 type handleLeftMeeting = (callback: () => void) => void;
 type handleVerificationAccepted = (callback: () => void) => void;
@@ -16,6 +20,11 @@ export interface ipcAPI {
    * Get the settings from the main process
    */
   getSettings: getSettings;
+
+  /**
+   * Save the settings as json in settings directory
+   */
+  saveSettings: saveSettings;
 
   /**
    * Close application
@@ -41,6 +50,16 @@ export interface ipcAPI {
    * Join Urls to join the meeting
    */
   joinMeeting: joinMeeting;
+
+  /**
+   * Request the available meeting rooms
+   */
+  requestMeetingRooms: requestMeetingRooms;
+
+  /**
+   * Request the available displays
+   */
+  requestAvailableDisplays: requestAvailableDisplays;
 
   /**
    * Plugin has disconnected

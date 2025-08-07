@@ -14,6 +14,6 @@
       "/@/*": ["./src/*"]
     }
   },
-  "include": ["src/**/*.ts", "../../types/**/*.d.ts"],
+  "include": ["src/**/*.ts", "../../types/**/*.d.ts", "src/meeting_room_provider/pilosMeetingRoomProvider.ts", "src/meeting_room_provider/meetingProviderFactory.ts", "src/meeting_room_provider/IMeetingRoomProvider.ts"],
   "exclude": ["**/*.spec.ts", "**/*.test.ts"]
 }

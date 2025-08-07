@@ -20,7 +20,7 @@ export class BBBGraphQl {
   private authToken: string = '';
   private userId: string = '';
   private apolloClient: ApolloClient<NormalizedCacheObject> | undefined;
-  private graphQlClient: Client;
+  private graphQlClient: Client | undefined = undefined;
 
   constructor(joinUrl: string) {
     this.joinUrl = joinUrl;
@@ -52,6 +52,7 @@ export class BBBGraphQl {
 
   private async requestSessionToken(): Promise<boolean> {
     try {
+
       console.debug('Join link used:', this.joinUrl);
 
       const response = await axios.get(this.joinUrl, {
@@ -63,13 +64,36 @@ export class BBBGraphQl {
       });
       if (response.status === 302) {
         const redirectUrl = response.headers['location'];
-        console.debug('redirectUrl', redirectUrl);
+        console.log("Redirecting to: " + redirectUrl);        
         const url = new URL(redirectUrl);
 
         this.sessionToken = url.searchParams.get('sessionToken');
         this.host = url.host;
         this.cookies = response.headers['set-cookie'];
         console.debug('cookies', this.cookies);
+        
+        if (!this.sessionToken) {
+          console.log('No session token found. Requesting again.');
+          const response = await axios.get(redirectUrl, {
+            withCredentials: true,
+            maxRedirects: 0,
+            validateStatus: function (status) {
+              return status == 200 || status == 302;
+            },
+          });
+          if (response.status === 302 || response.status === 200) {
+            const urlWithSessionToken = new URL(response.headers['location']);
+            console.log("Url With Session Token: " + redirectUrl);
+            this.sessionToken = urlWithSessionToken.searchParams.get('sessionToken');
+            this.cookies = response.headers['set-cookie'];
+            console.log("Redirected twice. Session token: " + this.sessionToken);
+            console.log("Cookies: " + this.cookies);
+          }
+          if (!this.sessionToken) {
+            console.error('Failed to request session token.');
+            return false;
+          }
+        }
 
         return true;
       }
@@ -177,13 +201,13 @@ export class BBBGraphQl {
     try {
       // Check if cookies are not null before attempting to find a cookie
       if (!this.cookies) {
-        console.error('Cookies are not set.');
-        return false;
-      }
+       console.error('Cookies are not set.');
+       return false;
+     }
 
       const jSessionCookie = this.cookies
-        ?.find(cookie => cookie.startsWith('JSESSIONID'))
-        ?.split(';')[0];
+       ?.find(cookie => cookie.startsWith('JSESSIONID'))
+       ?.split(';')[0];
       console.debug('jSessionCookie', jSessionCookie);
 
       // You need to override the WebSocket class to add the cookie
@@ -232,7 +256,7 @@ export class BBBGraphQl {
         },
       });
 
-      console.debug('graphQlClient: ', this.graphQlClient);
+      console.log('graphQlClient: ', this.graphQlClient);
       const graphqlWsLink = new GraphQLWsLink(this.graphQlClient);
       wsLink = ApolloLink.from([graphqlWsLink]);
       wsLink.setOnError(error => {

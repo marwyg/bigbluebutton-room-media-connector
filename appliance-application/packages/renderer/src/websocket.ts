@@ -1,4 +1,4 @@
-import type {RoomConfig} from '../../common/config';
+import type { Room } from '../../main/src/ConfigManager';
 
 export default class BBBWebSocket {
   public wsURL: string;
@@ -19,7 +19,7 @@ export default class BBBWebSocket {
   //private join_urls_callback: (URLs: object) => void;
 
 
-  constructor(roomConfig: RoomConfig, wsURL: string, reconnect_interval_time: number = 1000, ping_interval_time: number = 1000) {
+  constructor(roomConfig: Room, wsURL: string, reconnect_interval_time: number = 1000, ping_interval_time: number = 1000) {
     this.roomConfig = roomConfig;
     this.wsURL = wsURL;
     this.reconnect_interval_time = reconnect_interval_time;
