@@ -1,0 +1,284 @@
+{
+  "preferred_pin_screen": "Built-in display",
+  "hide_close_button": false,
+  "show_pin_display": true,
+  "show_meeting_list": true,
+  "debug": true,
+  "keyboard_hid": false,
+
+  "auto_reject_time": 10,
+
+  "control_server": {
+    "ws": "wss://martin2-bigbluebutton-openstack.uni-osnabrueck.de/hybrid/ws_room",
+    "reconnect_interval": 2000,
+    "ping_interval": 10000
+  },
+
+  "meeting_provider": "pilos",
+  "meeting_provider_url": "https://bbb-community.uni-osnabrueck.de",
+  "meetings": [
+    {
+      "name": "Test",
+      "description": "Test",
+      "link": "https://bbb-community.uni-osnabrueck.de/rooms/r2j-47h-emb/P3WfIFcoaEZkLVXdfUvLLQX2qFUW8YQQso6s5xj4zdVapXFcfZW5aNYZgV14UxKef05okuM4lkSSwcH2D6dSCaogobs4MTUFGW4K"
+    },
+    {
+      "link": "https://bbb-community.uni-osnabrueck.de/rooms/zxw-dkj-yyr/23zQ9Y4TFf853ii4n0cnuoKTUXAkslnZaFrksJhgg16MasGqeaOAuwm93rFcTvGlQd5EJEaAq4M03PXsLhwRYpqCcEOoegrO4CVu"
+    }
+  ],
+  "room": {
+    "bbb_user_name": "RoomMedia",
+    "bbb_user_id": "bbb-room-media",
+    "layouts": [
+      {
+        "label": "Presi left - Cam right",
+        "screens": [
+          {
+            "name": "DELL U3419W",
+            "bbb_join_parameters": [
+              {
+                "key": "userdata-bbb_self_view_disable",
+                "value": true
+              },
+              {
+                "key": "enforceLayout",
+                "value": "PRESENTATION_ONLY"
+              },
+              {
+                "key": "userdata-bbb_display_notifications",
+                "value": false
+              },
+              {
+                "key": "userdata-bbb_auto_share_webcam",
+                "value": false
+              },
+              {
+                "key": "userdata-bbb_skip_check_audio",
+                "value": true
+              },
+              {
+                "key": "userdata-bbb_hide_controls",
+                "value": true
+              },
+              {
+                "key": "userdata-bbb_auto_join_audio",
+                "value": false
+              },
+              {
+                "key": "userdata-bbb_show_session_details_on_join",
+                "value": false
+              }
+            ]
+          },
+          {
+            "name": "Built-in display",
+            "bbb_join_parameters": [
+              {
+                "key": "enforceLayout",
+                "value": "CAMERAS_ONLY"
+              },
+              {
+                "key": "userdata-bbb_display_notifications",
+                "value": false
+              },
+              {
+                "key": "userdata-bbb_auto_share_webcam",
+                "value": true
+              },
+              {
+                "key": "userdata-bbb_hide_controls",
+                "value": false
+              },
+              {
+                "key": "userdata-bbb_skip_video_preview",
+                "value": true
+              },
+              {
+                "key": "userdata-bbb_show_session_details_on_join",
+                "value": false
+              },
+              {
+                "key": "bbb_skip_check_audio_on_first_join",
+                "value": true
+              },
+              {
+                "key": "userdata-bbb_auto_join_audio",
+                "value": true
+              },
+              {
+                "key": "userdata-bbb_skip_check_audio",
+                "value": true
+              },
+              {
+                "key": "bbb_ask_for_feedback_on_logout",
+                "value": false
+              },
+              {
+                "key": "bbb_skip_echotest_if_previous_device",
+                "value": true
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "label": "Presi right - Cam left",
+        "screens": [
+          {
+            "name": "Built-in display",
+            "bbb_join_parameters": [
+              {
+                "key": "userdata-bbb_self_view_disable",
+                "value": true
+              },
+              {
+                "key": "enforceLayout",
+                "value": "PRESENTATION_ONLY"
+              },
+              {
+                "key": "userdata-bbb_display_notifications",
+                "value": false
+              },
+              {
+                "key": "userdata-bbb_auto_share_webcam",
+                "value": false
+              },
+              {
+                "key": "userdata-bbb_skip_check_audio",
+                "value": true
+              },
+              {
+                "key": "userdata-bbb_hide_controls",
+                "value": true
+              },
+              {
+                "key": "userdata-bbb_auto_join_audio",
+                "value": false
+              },
+              {
+                "key": "userdata-bbb_show_session_details_on_join",
+                "value": false
+              }
+            ]
+          },
+          {
+            "name": "DELL U3419W",
+            "bbb_join_parameters": [
+              {
+                "key": "enforceLayout",
+                "value": "CAMERAS_ONLY"
+              },
+              {
+                "key": "userdata-bbb_display_notifications",
+                "value": false
+              },
+              {
+                "key": "userdata-bbb_auto_share_webcam",
+                "value": true
+              },
+              {
+                "key": "userdata-bbb_skip_check_audio",
+                "value": true
+              },
+              {
+                "key": "userdata-bbb_hide_controls",
+                "value": false
+              },
+              {
+                "key": "userdata-bbb_skip_video_preview",
+                "value": true
+              },
+              {
+                "key": "userdata-bbb_auto_join_audio",
+                "value": true
+              },
+              {
+                "key": "userdata-bbb_show_session_details_on_join",
+                "value": false
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "label": "Presi right - Cam left 2",
+        "screens": [
+          {
+            "name": "Built-in display",
+            "bbb_join_parameters": [
+              {
+                "key": "userdata-bbb_self_view_disable",
+                "value": true
+              },
+              {
+                "key": "enforceLayout",
+                "value": "PRESENTATION_ONLY"
+              },
+              {
+                "key": "userdata-bbb_display_notifications",
+                "value": false
+              },
+              {
+                "key": "userdata-bbb_auto_share_webcam",
+                "value": false
+              },
+              {
+                "key": "userdata-bbb_skip_check_audio",
+                "value": true
+              },
+              {
+                "key": "userdata-bbb_hide_controls",
+                "value": true
+              },
+              {
+                "key": "userdata-bbb_auto_join_audio",
+                "value": false
+              },
+              {
+                "key": "userdata-bbb_show_session_details_on_join",
+                "value": false
+              }
+            ]
+          },
+          {
+            "name": "DELL U3419W",
+            "bbb_join_parameters": [
+              {
+                "key": "enforceLayout",
+                "value": "CAMERAS_ONLY"
+              },
+              {
+                "key": "userdata-bbb_display_notifications",
+                "value": false
+              },
+              {
+                "key": "userdata-bbb_auto_share_webcam",
+                "value": true
+              },
+              {
+                "key": "userdata-bbb_skip_check_audio",
+                "value": true
+              },
+              {
+                "key": "userdata-bbb_hide_controls",
+                "value": false
+              },
+              {
+                "key": "userdata-bbb_skip_video_preview",
+                "value": true
+              },
+              {
+                "key": "userdata-bbb_auto_join_audio",
+                "value": true
+              },
+              {
+                "key": "userdata-bbb_show_session_details_on_join",
+                "value": false
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

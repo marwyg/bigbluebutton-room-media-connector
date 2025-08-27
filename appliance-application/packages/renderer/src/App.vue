@@ -209,7 +209,6 @@ const discardConfigChanges = () => {
   originalConfig.value = null; // Clear the backup to allow a new one on next open
 };
 
-
 </script>
 
 <template>

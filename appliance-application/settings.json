@@ -1,6 +1,6 @@
 {
   "control_server": {
-    "ws": "wss://domain.tld/ws_room",
+    "ws":"wss://plugins-bigbluebutton-openstack.uni-osnabrueck.de/room-hub/ws_room",
     "reconnect_interval": 5000,
     "ping_interval": 10000
   },
