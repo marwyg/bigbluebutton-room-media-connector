@@ -76,6 +76,7 @@ export default class BBBWebSocket {
         }
 
         if (data.type == 'JoinURL') {
+          console.log('Received JoinURL', data);
           this.join_url_callback(data.joinUrl, data.layoutIndex);
         }
 
@@ -153,8 +154,8 @@ export default class BBBWebSocket {
   }
    */
 
-
   setPluginDisconnectedCallback(callback: () => void) {
     this.plugin_disconnected_callback = callback;
   }
+
 }

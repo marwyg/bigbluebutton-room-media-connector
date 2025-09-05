@@ -72,7 +72,7 @@ async function createWindow() {
   // Message from the UI to join the meeting
   //ipcMain.on('joinMeeting', async (event, joinUrl: string, layoutIndex: number) => {
   ipcMain.on('joinMeeting', async (event, meeting: any, layoutIndex: number) => {
-    //console.log('joinMeeting', meeting);
+    console.log('icp joinMeeting');
 
     // Callback: Appliance has left the meeting or the meeting has ended
     const leftCallback = () => {
@@ -97,7 +97,7 @@ async function createWindow() {
 
     // Get the join URL
     console.log("Requesting join URL from Meeting Room Provider");
-    const joinUrl = await meetingRoomProvider.getJoinUrl(meeting, config);
+    const joinUrl = await meetingRoomProvider.getJoinUrl(meeting, config); // only works for predefined meetings. breaks plugin join urls
 
     const bbbMeeting = await createBBBMeeting(joinUrl, displayManager, leftCallback);
 

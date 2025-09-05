@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const path = require('path');
+const { WebpackManifestPlugin } = require('webpack-manifest-plugin');
 
 module.exports = {
   entry: './src/index.tsx',
@@ -25,8 +26,6 @@ module.exports = {
       if (!devServer) {
         throw new Error('webpack-dev-server is not defined');
       }
-
-      // Serve manifest.json from the project root when requested at /manifest.json
       devServer.app.get('/manifest.json', (req, res) => {
         res.sendFile(path.resolve(__dirname, 'manifest.json'));
       });
@@ -55,11 +54,26 @@ module.exports = {
   resolve: {
     extensions: ['.js', '.jsx', '.tsx', '.ts'],
   },
-  plugins: [
-    new CopyWebpackPlugin({
-      patterns: [
-        { from: 'manifest.json', to: './' }, // Copy manifest.json to static/ in the output folder
-      ],
+  plugins: [    
+    // The WebpackManifestPlugin generates a manifest.json file.
+    // It uses a custom `generate` function to format the output.
+    new WebpackManifestPlugin({
+      fileName: 'manifest.json',
+      publicPath: '/',
+      generate: (seed, files) => {
+        const manifestFiles = files.reduce((manifest, file) => {
+          manifest[file.name] = file.path;
+          return manifest;
+        }, seed);
+
+        // its static, todo: make it dynamic
+        return {
+          "requiredSdkVersion": "~0.0.68",
+          "name": "RoomMediaPlugin",
+          "javascriptEntrypointUrl": "RoomMediaPlugin.js",
+          "localesBaseUrl": "https://cdn.dominio.com/pluginabc/"
+        };
+      }
     }),
   ],
 };
