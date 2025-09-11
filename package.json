@@ -1,0 +1,5 @@
+{
+  "devDependencies": {
+    "nano-staged": "^0.8.0"
+  }
+}

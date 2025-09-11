@@ -100,12 +100,14 @@ async function loadHDIDevices() {
     const allStreamDeckDevices = await listStreamDecks();
 
     const streamDecks = allStreamDeckDevices.map(device => {
+      console.log('Opening Stream Deck device: ' + device.path);
       return openStreamDeck(device.path, {resetToLogoOnClose: true});
     });
 
     (await Promise.all(streamDecks)).forEach(streamDeck => {
       console.log('Stream Deck found: ' + streamDeck.PRODUCT_NAME);
       hdiDevices.push(new StreamDeckHID(streamDeck));
+      console.log('Stream Deck registered');
     });
   } catch (e) {
     console.error(e);

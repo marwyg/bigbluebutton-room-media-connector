@@ -1,16 +1,10 @@
 import axios from 'axios';
-import type {Client} from 'graphql-ws';
-import { createClient} from 'graphql-ws';
+import type { Client } from 'graphql-ws';
+import { createClient } from 'graphql-ws';
 import WebSocket from 'ws';
-import type {
-  NormalizedCacheObject} from '@apollo/client/core';
-import {
-  ApolloClient,
-  InMemoryCache,
-  ApolloLink,
-  gql,
-} from '@apollo/client/core';
-import {GraphQLWsLink} from '@apollo/client/link/subscriptions';
+import type { NormalizedCacheObject } from '@apollo/client/core';
+import { ApolloClient, InMemoryCache, ApolloLink, gql } from '@apollo/client/core';
+import { GraphQLWsLink } from '@apollo/client/link/subscriptions';
 
 export class BBBGraphQl {
   private joinUrl: string;
@@ -62,16 +56,17 @@ export class BBBGraphQl {
           return status == 200 || status == 302;
         },
       });
+
       if (response.status === 302) {
         const redirectUrl = response.headers['location'];
-        console.log("Redirecting to: " + redirectUrl);        
+        console.log("Redirecting to: " + redirectUrl);
         const url = new URL(redirectUrl);
 
         this.sessionToken = url.searchParams.get('sessionToken');
         this.host = url.host;
         this.cookies = response.headers['set-cookie'];
         console.debug('cookies', this.cookies);
-        
+
         if (!this.sessionToken) {
           console.log('No session token found. Requesting again.');
           const response = await axios.get(redirectUrl, {
@@ -256,7 +251,7 @@ export class BBBGraphQl {
         },
       });
 
-      console.log('graphQlClient: ', this.graphQlClient);
+      //console.log('graphQlClient: ', this.graphQlClient);
       const graphqlWsLink = new GraphQLWsLink(this.graphQlClient);
       wsLink = ApolloLink.from([graphqlWsLink]);
       wsLink.setOnError(error => {
@@ -284,10 +279,13 @@ export class BBBGraphQl {
   }
 
   public async leaveMeeting() {
+    console.log('--- Leaving meeting... ---');
     if (this.apolloClient) {
       await this.apolloClient.clearStore();
       this.apolloClient.stop();
-      this.graphQlClient.dispose();
+      if (this.graphQlClient) {
+        this.graphQlClient.dispose();
+      }
     }
   }
 

@@ -5,6 +5,7 @@ import {BBBGraphQl} from './BBBGraphQl';
 import type {DisplayManager} from './displayManager';
 import type { Layout } from './ConfigManager';
 import {v7 as uuid} from 'uuid';
+import fs from 'fs';
 
 export async function createBBBMeeting(control: string, displayManager: DisplayManager, leftCallback: () => void) {
 
@@ -48,6 +49,7 @@ class BBBMeeting {
         user_current {
           isModerator
           logoutUrl
+          currentlyInMeeting
           meeting {
             ended
             endedAt
@@ -70,8 +72,10 @@ class BBBMeeting {
       })
       .subscribe({
         next(data) {
-          console.log('getMeetingEndData', JSON.stringify(data));
-          if (data.data.user_current[0].meeting.ended === true) {
+          //console.log('getMeetingEndData', JSON.stringify(data, null, 2));
+          const our_user = data.data.user_current[0];
+          if (our_user.meeting.ended === true // when we click the "end meeting for all" button
+            || our_user.currentlyInMeeting === false) { // when we click "leave meeting" button
             console.log('Meeting ended');
             callback();
           }
@@ -92,27 +96,27 @@ class BBBMeeting {
       }
     `;
 
-    this.apolloClient
-      .subscribe({
-        query: USER_SESSIONS,
-      })
-      .subscribe({
-        next(data) {
-          const userSessions = data.data.user_session;
-          console.log('userSessions', JSON.stringify(userSessions));
+    // this.apolloClient
+    //   .subscribe({
+    //     query: USER_SESSIONS,
+    //   })
+    //   .subscribe({
+    //     next(data) {
+    //       const userSessions = data.data.user_session;
+    //       console.log('userSessions', JSON.stringify(userSessions, null, 2));
 
-          // Is the original user still in the meeting?
-          // @ts-ignore
-          const isOwnerPresent = userSessions.some(session => session.sessionName == null);
+    //       // Is the original user still in the meeting?
+    //       // @ts-ignore
+    //       const isOwnerPresent = userSessions.some(session => session.sessionName == null);
 
-          if (!isOwnerPresent) {
-            //callback();
-          }
-        },
-        error(err) {
-          console.error('err', err);
-        },
-      });
+    //       if (!isOwnerPresent) {
+    //         //callback();
+    //       }
+    //     },
+    //     error(err) {
+    //       console.error('err', err);
+    //     },
+    //   });
   }
 
   public async openScreens(layout: Layout) {
@@ -133,12 +137,12 @@ class BBBMeeting {
 
     //for (const [key, value] of Object.entries(layout.screens)) {
     for (const screen of layout.screens) {
-      console.log("\nProcessing screen: " + screen.name);
-      console.log("With join parameters: " + screen.bbb_join_parameters + "\n");
+      //console.log("\nProcessing screen: " + screen.name);
+      //console.log("With join parameters: " + JSON.stringify(screen.bbb_join_parameters, null, 2) + "\n");
 
       // convert the join parameters to a dictionary
       const joinParameters: {[key: string]: string} = {};
-      for (const joinParameter of screen.bbb_join_parameters) {        
+      for (const joinParameter of screen.bbb_join_parameters) {
         joinParameters[joinParameter.key] = joinParameter.value as string;;
       }
 
@@ -257,6 +261,7 @@ class BBBMeeting {
   }
 
   private closeScreens() {
+    console.log('Closing all windows');
     Object.values(this.windows).forEach(window => {
       window.close();
       window.destroy();

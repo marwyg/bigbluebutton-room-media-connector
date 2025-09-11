@@ -1,9 +1,11 @@
 import * as path from 'path';
+import fs from 'fs';
 import sharp, {Sharp} from 'sharp';
 import type {StreamDeck} from '@elgato-stream-deck/node';
 import {fileURLToPath} from 'url';
 import type {HID, HIDActions} from './HID';
 import type {StreamDeckButtonControlDefinitionLcdFeedback} from '@elgato-stream-deck/core/dist/controlDefinition';
+import { buffer } from 'stream/consumers';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -53,6 +55,9 @@ export class StreamDeckHID implements HID {
   private isConnected!: boolean;
 
   constructor(streamDeck: StreamDeck) {
+
+    console.log('StreamDeck constructor');
+
     this.streamDeck = streamDeck;
 
     this.streamDeck.clearPanel();
@@ -62,6 +67,9 @@ export class StreamDeckHID implements HID {
     this.initIcons().then(() => {
       this.showBBBScreen();
     });
+
+
+    console.log('Initializing button listeners');
 
     this.streamDeck.on('up', button => {
       console.log('key %d up', button.index);
@@ -104,9 +112,12 @@ export class StreamDeckHID implements HID {
     this.streamDeck.on('error', error => {
       console.error(error);
     });
+
+    console.log('StreamDeck initialized');
   }
 
   async initIcons() {
+    console.log('Initializing button icons');
     const controls = this.streamDeck.CONTROLS;
     let rows = 0;
     let columns = 0;
@@ -147,6 +158,8 @@ export class StreamDeckHID implements HID {
       }
     });
 
+    //console.log('Loading button images...');
+
     this.BBB_IMG = await this.getButtonImageBuffer(StreamDeckHID.BBB_BUTTON, 'bbb.png');
     this.ACCEPT_IMG = await this.getButtonImageBuffer(StreamDeckHID.ACCEPT_BUTTON, 'accept.png');
     this.REJECT_IMG = await this.getButtonImageBuffer(StreamDeckHID.REJECT_BUTTON, 'reject.png');
@@ -162,26 +175,46 @@ export class StreamDeckHID implements HID {
     this.LAYOUT2_REVERSE_IMG = await this.getButtonImageBuffer(StreamDeckHID.LAYOUT2, 'L2_reverse.png',);
     this.LAYOUT3_REVERSE_IMG = await this.getButtonImageBuffer(StreamDeckHID.LAYOUT3, 'L3_reverse.png',);
 
-    this.BBB_IMG_LG = await sharp(path.resolve(__dirname, '../assets/bbb.png'))
-      .flatten()
-      .resize(
-        StreamDeckHID.BBB_BUTTON.pixelSize.width * (columns + 1),
-        StreamDeckHID.BBB_BUTTON.pixelSize.height * (rows + 1),
-        {
-          fit: 'contain',
-          background: {r: 0, g: 0, b: 0},
-        },
-      )
-      .raw()
-      .toBuffer();
+
+    const imagePath = path.resolve(__dirname, '../assets/bbb.png');
+
+    if (fs.existsSync(imagePath)) {
+      this.BBB_IMG_LG = await sharp(imagePath)
+        .flatten()
+        .resize(
+          StreamDeckHID.BBB_BUTTON.pixelSize.width * (columns + 1),
+          StreamDeckHID.BBB_BUTTON.pixelSize.height * (rows + 1),
+          {
+            fit: 'contain',
+            background: {r: 0, g: 0, b: 0},
+          },
+        )
+        .raw()
+        .toBuffer();
+    } else {
+      console.error(`Error: The image file was not found at ${imagePath}`);
+    }
+
+    //console.log('Button icons initialized');
   }
 
   async getButtonImageBuffer(button: StreamDeckButtonControlDefinitionLcdFeedback, image: string): Promise<Buffer> {
-    return sharp(path.resolve(__dirname, '../assets/' + image))
+    //console.log('Loading ' + image);
+
+    const imagePath = path.resolve(__dirname, '../assets/' + image);
+    //console.log('Resolved image path: ' + imagePath);
+
+    if (fs.existsSync(imagePath)) {
+      //console.log('Image exists in path: ' + imagePath);
+      return await sharp(imagePath)
       .flatten()
       .resize(button.pixelSize.width, button.pixelSize.height)
       .raw()
       .toBuffer();
+    } else {
+      console.error(`Error: The image file was not found at ${imagePath}`);
+      throw new Error(`Image file not found: ${imagePath}`);
+    }
   }
 
   requireVerification(accept: () => void, reject: () => void): void {
@@ -221,7 +254,7 @@ export class StreamDeckHID implements HID {
     this.streamDeck.clearKey(StreamDeckHID.REJECT_BUTTON.index);
   }
 
-  selectLayout(layout: number): void {    
+  selectLayout(layout: number): void {
     if (layout < 0 || layout > 2) {
       throw new Error('Invalid layout index');
     }
@@ -253,6 +286,7 @@ export class StreamDeckHID implements HID {
   }
 
   connected(actions: HIDActions): void {
+    console.log('StreamDeck connected');
     this.streamDeck.clearPanel();
 
     this.streamDeck.fillKeyBuffer(StreamDeckHID.BBB_BUTTON.index, this.BBB_IMG);

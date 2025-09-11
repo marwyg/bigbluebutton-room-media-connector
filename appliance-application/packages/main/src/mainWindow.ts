@@ -283,15 +283,23 @@ function getPINScreen() {
  * Restore an existing BrowserWindow or Create a new BrowserWindow.
  */
 export async function restoreOrCreateWindow() {
+  
+  console.log('1');
   let window = BrowserWindow.getAllWindows().find(w => !w.isDestroyed());
 
   if (window === undefined) {
     window = await createWindow();
   }
 
+  console.log('2');
+
   if (window.isMinimized()) {
     window.restore();
   }
 
+  console.log('3');
+
   window.focus();
+
+  console.log('Main window is ready');
 }
