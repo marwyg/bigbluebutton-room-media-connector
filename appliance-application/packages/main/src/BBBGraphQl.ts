@@ -110,31 +110,6 @@ export class BBBGraphQl {
       return false;
     }
 
-    //console.log(this.apolloClient);
-
-    const HEALTH_CHECK_QUERY = gql`
-      query HealthCheck {
-        __typename
-      }
-    `;
-
-    console.log("Executing HEALTH_CHECK_QUERY..");
-
-    try {
-
-      this.apolloClient.query({
-          query: HEALTH_CHECK_QUERY,
-          errorPolicy: "none",
-          fetchPolicy: 'network-only'
-        });
-
-    } catch (error) {
-      console.error("Connection failed or query error:", error);
-    }
-
-    console.log("Connection check finished. Waiting 5s");
-
-
     await new Promise(resolve => setTimeout(resolve, 5000));
 
     const USER_CURRENT_QUERY = gql`
@@ -146,7 +121,7 @@ export class BBBGraphQl {
       }
     `;
 
-    console.log("Executing USER_CURRENT_QUERY..");
+    //console.log("Executing USER_CURRENT_QUERY..");
 
     const {data} = await this.apolloClient.query({
       query: USER_CURRENT_QUERY,
