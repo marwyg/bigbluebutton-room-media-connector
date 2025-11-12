@@ -158,7 +158,7 @@ export class StreamDeckHID implements HID {
       }
     });
 
-    //console.log('Loading button images...');
+    console.log('Loading button images...');
 
     this.BBB_IMG = await this.getButtonImageBuffer(StreamDeckHID.BBB_BUTTON, 'bbb.png');
     this.ACCEPT_IMG = await this.getButtonImageBuffer(StreamDeckHID.ACCEPT_BUTTON, 'accept.png');
@@ -195,17 +195,17 @@ export class StreamDeckHID implements HID {
       console.error(`Error: The image file was not found at ${imagePath}`);
     }
 
-    //console.log('Button icons initialized');
+    console.log('Button icons initialized');
   }
 
   async getButtonImageBuffer(button: StreamDeckButtonControlDefinitionLcdFeedback, image: string): Promise<Buffer> {
-    //console.log('Loading ' + image);
+    console.log('Loading ' + image);
 
     const imagePath = path.resolve(__dirname, '../assets/' + image);
-    //console.log('Resolved image path: ' + imagePath);
+    console.log('Resolved image path: ' + imagePath);
 
     if (fs.existsSync(imagePath)) {
-      //console.log('Image exists in path: ' + imagePath);
+      console.log('Image exists in path: ' + imagePath);
       return await sharp(imagePath)
       .flatten()
       .resize(button.pixelSize.width, button.pixelSize.height)

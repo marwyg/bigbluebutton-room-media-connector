@@ -67,7 +67,7 @@ function onPluginDisconnected() {
 // Triggered when the user clicks on "accept" in Appliance App
 function onVerificationAccepted() {
   console.log('onVerificationAccepted');
-  window.electronAPI.verificationAccepted();  
+  window.electronAPI.verificationAccepted();
   ws.acceptVerification();
   verificationCode.value = null;
 };
@@ -259,8 +259,7 @@ const discardConfigChanges = () => {
         </div>
         <div class="headline-title">BigBlueButton</div>
         <div class="headline-subtitle">
-          <span>Hybrid meetings made simple. This app connects camera, audio, and screen with your online
-            meeting.</span>
+          <span>Hybrid meetings made simple. This app connects camera, audio, and screen with your online meeting.</span>
         </div>
       </div>
 
@@ -286,9 +285,9 @@ const discardConfigChanges = () => {
         <template v-else>
 
           <!-- Settings Screen -->
-          <div v-if="showSettingsScreen">
+          <div v-if="showSettingsScreen" class="box">
             <div class="box-header">Settings</div>
-            <div class="box box--no-bottom-styling" style="width: 732px;">
+            <div class="box-content box--no-bottom-styling">
 
               <div class="settings-content scrollable">
 
@@ -556,9 +555,9 @@ const discardConfigChanges = () => {
           <template v-else>
 
             <!-- Left Box: PIN Display -->
-            <div v-if="config.show_pin_display">
+            <div v-if="config.show_pin_display" class="box">
               <div class="box-header">Connect by Code</div>
-              <div class="box">
+              <div class="box-content">
                 <h3>Temporary Room Code</h3>
 
                 <div class="temporary-code">
@@ -590,9 +589,9 @@ const discardConfigChanges = () => {
             </div>
 
             <!-- Right Box: Meeting List -->
-            <div v-if="config.show_meeting_list">
+            <div v-if="config.show_meeting_list" class="box">
               <div class="box-header">Connect to existing Meeting</div>
-              <div class="box">
+              <div class="box-content">
                 <h3>Available Meeting Rooms</h3>
 
                 <div class="meeting-list-scrollable">

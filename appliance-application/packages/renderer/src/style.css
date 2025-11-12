@@ -53,9 +53,12 @@ body {
 .box-wrapper {
   display: flex;
   gap: 2rem;
-  flex-wrap: wrap;
-  align-content: center;
   justify-content: center;
+  max-width: 750px;
+}
+
+.box {
+  flex: 1;
 }
 
 .box-header {
@@ -67,12 +70,11 @@ body {
   font-weight: bold;
 }
 
-.box {
+.box-content {
   background: white;
   border-radius: 0 0 8px 8px;
   display: flex;
   flex-direction: column;
-  width: 350px;
   min-height: 33rem;
   max-height: 33rem;
   box-shadow: 0px 6px 10px 0px rgba(0, 0, 0, 0.1);
@@ -81,7 +83,7 @@ body {
 }
 
 .box--no-bottom-styling {
-  border-radius: 0;    
+  border-radius: 0;
 }
 
 .box h3 {
@@ -154,7 +156,7 @@ body {
 
 .scrollable {
   overflow-y: auto;
-  padding-right: 14px;  
+  padding-right: 14px;
 }
 
 .right-box-description {
@@ -186,7 +188,7 @@ body {
 .scrollable::-webkit-scrollbar {
   width: 0.6rem;
   background: #e4ebf7;
-  border-radius: 8px;  
+  border-radius: 8px;
 }
 
 .scrollable::-webkit-scrollbar-thumb {
@@ -201,7 +203,7 @@ body {
 /* Styles for the settings */
 
 .settings-content {
-  margin-top: 1.5rem;  
+  margin-top: 1.5rem;
 }
 
 .setting-title {
@@ -401,7 +403,7 @@ select:focus {
 
 .settings-footer {
   display: flex;
-  padding: 1rem 2rem 1rem 0;  
+  padding: 1rem 2rem 1rem 0;
   align-items: end;
   justify-content: end;
   gap: 0.75rem;
@@ -412,8 +414,8 @@ select:focus {
 }
 
 .settings-button-save {
-  background-color: #00aa44;  
-  transition: transform 0.05s ease-in-out;  
+  background-color: #00aa44;
+  transition: transform 0.05s ease-in-out;
   width: 7rem;
   height: 2.5rem;
 }

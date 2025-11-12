@@ -66,13 +66,15 @@ class BBBMeeting {
       return;
     }
 
+    console.log("subscribing with apollo client..");
+
     this.apolloClient
       .subscribe({
         query: getMeetingEndData,
       })
       .subscribe({
         next(data) {
-          //console.log('getMeetingEndData', JSON.stringify(data, null, 2));
+          console.log('getMeetingEndData', JSON.stringify(data, null, 2));
           const our_user = data.data.user_current[0];
           if (our_user.meeting.ended === true // when we click the "end meeting for all" button
             || our_user.currentlyInMeeting === false) { // when we click "leave meeting" button
@@ -137,8 +139,8 @@ class BBBMeeting {
 
     //for (const [key, value] of Object.entries(layout.screens)) {
     for (const screen of layout.screens) {
-      //console.log("\nProcessing screen: " + screen.name);
-      //console.log("With join parameters: " + JSON.stringify(screen.bbb_join_parameters, null, 2) + "\n");
+      console.log("\nProcessing screen: " + screen.name);
+      console.log("With join parameters: " + JSON.stringify(screen.bbb_join_parameters, null, 2) + "\n");
 
       // convert the join parameters to a dictionary
       const joinParameters: {[key: string]: string} = {};

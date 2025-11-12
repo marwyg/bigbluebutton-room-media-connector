@@ -99,7 +99,11 @@ async function createWindow() {
     console.log("Requesting join URL from Meeting Room Provider");
     const joinUrl = await meetingRoomProvider.getJoinUrl(meeting, config); // only works for predefined meetings. breaks plugin join urls
 
+    console.log("Got join URL from meetingRoomProvider, creating BBB Meeting");
+
     const bbbMeeting = await createBBBMeeting(joinUrl, displayManager, leftCallback);
+
+    console.log("BBBMeeting: ", bbbMeeting);
 
     if (bbbMeeting === false) {
       console.log('failed to join');
@@ -117,6 +121,8 @@ async function createWindow() {
       ipcMain.off('pluginDisconnected', pluginDisconnected);
       */
     };
+
+    console.log("Opening screens");
 
     // Open the screens with the BBB HTML5 Clients
     await bbbMeeting.openScreens(layout);
@@ -283,7 +289,7 @@ function getPINScreen() {
  * Restore an existing BrowserWindow or Create a new BrowserWindow.
  */
 export async function restoreOrCreateWindow() {
-  
+
   console.log('1');
   let window = BrowserWindow.getAllWindows().find(w => !w.isDestroyed());
 

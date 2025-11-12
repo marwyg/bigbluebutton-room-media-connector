@@ -9,6 +9,7 @@
  * @see https://www.electron.build/configuration/configuration
  */
 module.exports = async function () {
+
   const {getVersion} = await import('./version/getVersion.mjs');
 
   return {
@@ -27,21 +28,14 @@ module.exports = async function () {
 
     // Specify linux target just for disabling snap compilation
     linux: {
-      target: ['deb', 'rpm'],
+      target: ['snap'],
     },
-    win: {
-      target: ['portable'],
-    },
-    mac: {
-      target: 'dmg',
-    },
-    deb: {
-      afterInstall: 'installer/linux/after-install.tpl',
+    snap: {
+      stagePackages: ["default", "libusb-1.0-0"]
     },
     rpm: {
-      afterInstall: 'installer/linux/after-install.tpl',
+      //afterInstall: 'installer/linux/after-install.tpl',
     },
-
     publish: [
       {
         provider: 'github',

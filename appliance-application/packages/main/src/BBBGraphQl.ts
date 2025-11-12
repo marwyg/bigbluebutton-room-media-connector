@@ -2,8 +2,9 @@ import axios from 'axios';
 import type { Client } from 'graphql-ws';
 import { createClient } from 'graphql-ws';
 import WebSocket from 'ws';
-import type { NormalizedCacheObject } from '@apollo/client/core';
-import { ApolloClient, InMemoryCache, ApolloLink, gql } from '@apollo/client/core';
+import { ApolloClient, InMemoryCache, ApolloLink, gql, NormalizedCacheObject,  } from '@apollo/client/core';
+import { useQuery } from "@apollo/client";
+import { onError } from '@apollo/client/link/error';
 import { GraphQLWsLink } from '@apollo/client/link/subscriptions';
 
 export class BBBGraphQl {
@@ -25,21 +26,25 @@ export class BBBGraphQl {
       console.error('Failed to request session token.');
       return false;
     }
+    console.log("Requested session token..");
 
     if (!(await this.initApolloClient())) {
       console.error('Failed to initialize Apollo Client.');
       return false;
     }
+    console.log("Initialized apollo client..");
 
     if (!(await this.getAuthToken())) {
       console.error('Failed to retrieve the authToken.');
       return false;
     }
+    console.log("Retrieved authToken..");
 
     if (!(await this.connectToGraphQL())) {
       console.error('Failed to connect to GraphQL.');
       return false;
     }
+    console.log("Connected to graphQL..");
 
     return true;
   }
@@ -100,9 +105,38 @@ export class BBBGraphQl {
   }
 
   private async getAuthToken(): Promise<boolean> {
+
     if (!this?.apolloClient) {
       return false;
     }
+
+    //console.log(this.apolloClient);
+
+    const HEALTH_CHECK_QUERY = gql`
+      query HealthCheck {
+        __typename
+      }
+    `;
+
+    console.log("Executing HEALTH_CHECK_QUERY..");
+
+    try {
+
+      this.apolloClient.query({
+          query: HEALTH_CHECK_QUERY,
+          errorPolicy: "none",
+          fetchPolicy: 'network-only'
+        });
+
+    } catch (error) {
+      console.error("Connection failed or query error:", error);
+    }
+
+    console.log("Connection check finished. Waiting 5s");
+
+
+    await new Promise(resolve => setTimeout(resolve, 5000));
+
     const USER_CURRENT_QUERY = gql`
       query getUserCurrent {
         user_current {
@@ -112,10 +146,14 @@ export class BBBGraphQl {
       }
     `;
 
+    console.log("Executing USER_CURRENT_QUERY..");
+
     const {data} = await this.apolloClient.query({
       query: USER_CURRENT_QUERY,
       fetchPolicy: 'network-only',
     });
+
+    console.log("USER_CURRENT_QUERY executed..");
 
     if (data && data?.user_current?.[0]?.authToken) {
       console.log('IN getAuthToken: ', data);
@@ -123,6 +161,8 @@ export class BBBGraphQl {
       this.userId = data.user_current[0].userId;
       return true;
     }
+
+    console.log("No data from USER_CURRENT_QUERY");
 
     return false;
   }
@@ -216,6 +256,8 @@ export class BBBGraphQl {
         }
       }
 
+      // console.log("Creating graphql client with host: ", this.host);
+
       this.graphQlClient = createClient({
         url: `wss://${this.host}/graphql`,
         keepAlive: 10000,
@@ -233,30 +275,49 @@ export class BBBGraphQl {
             console.error('GraphQL-Client: Session token is invalid');
             return false;
           }
+          // console.log("Error in graphql client: ", error)
           return true;
         },
         on: {
-          error: error => {
-            console.error('GraphQL-Client: Error: on subscription to server:', error);
+          connecting: (isRetry) => {
+            // console.info('GraphQL-Client: Connecting to server, isRetry: ', isRetry);
+          },
+          opened: (socket) => {
+            //console.info('GraphQL-Client: Connection opened, socket: ', socket);
+            // console.info('GraphQL-Client: Connection opened');
+          },
+          connected: (socket, payload, wasRetry) => {
+            // console.info("Connected to server");
+            //console.info('GraphQL-Client: Connected to server, socket: ', socket, " payload: ", payload, " wasRetry: ", wasRetry);
+          },
+          ping: (payload) => {
+            //console.info('GraphQL-Client: Ping received from server');
+          },
+          pong: () => {
+            //console.info('GraphQL-Client: Pong received from server');
+          },
+          message: (message) => {
+            //console.info('GraphQL-Client: Message received from server: ', message);
           },
           closed: () => {
-            console.info('GraphQL-Client: Connection closed');
+            // console.info('GraphQL-Client: Connection closed');
           },
-          connected: socket => {
-            console.info('GraphQL-Client: Connected to server');
-          },
-          connecting: () => {
-            console.info('GraphQL-Client: Connecting to server');
+          error: error => {
+            console.error('GraphQL-Client: Error: on subscription to server:', error);
           },
         },
       });
 
-      //console.log('graphQlClient: ', this.graphQlClient);
+      // console.log('graphQlClient: ', this.graphQlClient);
+
       const graphqlWsLink = new GraphQLWsLink(this.graphQlClient);
+
       wsLink = ApolloLink.from([graphqlWsLink]);
+
       wsLink.setOnError(error => {
         throw new Error('Error: on apollo connection'.concat(JSON.stringify(error) || ''));
       });
+
     } catch (error) {
       console.error('Error creating WebSocketLink: ', error);
       return false;

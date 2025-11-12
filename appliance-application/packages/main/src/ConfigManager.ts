@@ -31,7 +31,7 @@ export function loadConfig() {
   } catch (error) {
     console.log('Error reading config from ' + configPath, error);
   }
-
+ 
   // Second we validate the settings file
   try {
     console.log('Validating config...');

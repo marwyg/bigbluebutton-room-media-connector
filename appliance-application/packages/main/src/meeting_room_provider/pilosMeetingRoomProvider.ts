@@ -1,5 +1,6 @@
 import {IMeetingRoomProvider} from './IMeetingRoomProvider';
 import type {Config} from '../ConfigManager';
+import { error } from 'node:console';
 
 interface Meeting {
   id: string;
@@ -24,17 +25,23 @@ export class PilosMeetingRoomProvider implements IMeetingRoomProvider {
         .filter(entry => entry.length > 0),
     );
 
-    //console.log('Loaded pilos url and meetings from config:', pilos_url, Object.keys(meeting_id_token_dict));
+    // console.log('Loaded pilos url and meetings from config:', pilos_url, meeting_id_token_dict);
 
     let meeting_list: Meeting[] = [];
 
-    //console.log('Requesting meetings information from Pilos...');
+    // console.log('Requesting meetings information from Pilos...');
 
     for (const [id, token] of Object.entries(meeting_id_token_dict)) {
-      const response = await fetch(`${pilos_url}/api/v1/rooms/${id}`);
+      const pilos_room_url = `${pilos_url}/api/v1/rooms/${id}`;
+      // console.log(pilos_room_url);
+      const response = await fetch(pilos_room_url);
+      if (response.status == 403) {
+        throw new Error(`Pilos returned status 403 while trying to get room information, maybe you have to configure 'allow guests' in the room settings, but please check the following message from pilos: ${await response.text()}`);
+      }
       const json = await response.json();
+      // console.log("Reponse json: ", json);
       const data = json.data;
-      //console.log('Meeting information retrieved successfully:', data);
+      // console.log('Meeting information retrieved successfully:', data);
       meeting_list.push({
         id: id,
         name: data.name,
@@ -51,14 +58,14 @@ export class PilosMeetingRoomProvider implements IMeetingRoomProvider {
     const base_url = config.meeting_provider_url + '/api/v1/rooms/' + meeting.id;
     const pilos_start_url = base_url + '/start';
     const pilos_join_url = base_url + '/join'; // its the pilos join url not the bbb join url
-    
+
     let bbb_join_url: string = '';
     try {
-      console.log('Requesting BBB join URL with /start API call: ' + pilos_start_url);
+      // console.log('Requesting BBB join URL with Pilos /start API call: ' + pilos_start_url);
       bbb_join_url = await this.requestBBBJoinUrl(pilos_start_url, meeting.token);
     } catch (error) {
-      console.log('Error requesting BBB join URL', error);
-      console.log('Trying to request BBB join URL with Pilos /join API call: ' + pilos_join_url);
+      // console.log('Error requesting BBB join URL, maybe the room was already started', error);
+      // console.log('Trying to request BBB join URL with Pilos /join API call: ' + pilos_join_url);
       try {
         bbb_join_url = await this.requestBBBJoinUrl(pilos_join_url, meeting.token);
       } catch (error) {
@@ -66,7 +73,7 @@ export class PilosMeetingRoomProvider implements IMeetingRoomProvider {
         throw error;
       }
     }
-    //console.log('Received BBB join URL from Pilos: ', bbb_join_url);
+    // console.log('Received BBB join URL from Pilos: ', bbb_join_url);
     return bbb_join_url;
   }
 
@@ -82,7 +89,7 @@ export class PilosMeetingRoomProvider implements IMeetingRoomProvider {
       throw new Error(`Failed to get BBB join URL: ${response.statusText}`);
     }
     const data = await response.json();
-    console.log('BBB join URL retrieved successfully: ', data);
+    // console.log('BBB join URL retrieved successfully: ', data);
     return data.url;
   }
 }
