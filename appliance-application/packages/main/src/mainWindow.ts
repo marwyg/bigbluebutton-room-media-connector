@@ -195,7 +195,7 @@ async function createWindow() {
 
   ipcMain.handle('requestMeetingRooms', async () => {
     const meetingRooms = await meetingRoomProvider.requestMeetingRooms(config);
-    console.log('meetingRooms', meetingRooms);
+    // console.log('meetingRooms', meetingRooms);
     return meetingRooms;
   });
 
@@ -266,21 +266,21 @@ async function createWindow() {
  */
 function getPINScreen() {
   // Get display for the pin screen
-  const pinDisplayLabel = config.preferred_pin_screen;
-  if (pinDisplayLabel === undefined) {
+  const pinDisplayLabelOrId = config.preferred_pin_screen;
+  if (pinDisplayLabelOrId === undefined) {
     console.error('Preferred pin screen is not set in the config file');
   }
 
-  const preferredPinDisplay = displayManager.getDisplay(pinDisplayLabel);
+  const preferredPinDisplay = displayManager.getDisplay(pinDisplayLabelOrId);
 
   const pinDisplay = preferredPinDisplay || displayManager.getDisplays()[0];
 
   if (preferredPinDisplay === null) {
     console.error(
-      `Preferred pin screen '${pinDisplayLabel}' not found. Falling back to the display '${pinDisplay.label}'`,
+      `Preferred pin screen '${pinDisplayLabelOrId}' not found. Falling back to the display '${pinDisplay.label}'`,
     );
   } else {
-    console.log(`Pin screen set to '${pinDisplayLabel}'`);
+    console.log(`Pin screen set to '${pinDisplayLabelOrId}'`);
   }
 
   return pinDisplay;
@@ -290,20 +290,15 @@ function getPINScreen() {
  */
 export async function restoreOrCreateWindow() {
 
-  console.log('1');
   let window = BrowserWindow.getAllWindows().find(w => !w.isDestroyed());
 
   if (window === undefined) {
     window = await createWindow();
   }
 
-  console.log('2');
-
   if (window.isMinimized()) {
     window.restore();
   }
-
-  console.log('3');
 
   window.focus();
 

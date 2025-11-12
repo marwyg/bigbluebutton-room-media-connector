@@ -25,21 +25,12 @@ module.exports = async function () {
     npmRebuild: false,
 
     appId: 'org.bigbluebutton.room-media.appliance',
+    productName: "BigBlueButton-RMC",
+    copyright: "Copyright © 2025 ${author}",
 
-    // Specify linux target just for disabling snap compilation
-    linux: {
-      target: ['snap'],
-    },
-    snap: {
-      stagePackages: ["default", "libusb-1.0-0"]
-    },
-    rpm: {
-      //afterInstall: 'installer/linux/after-install.tpl',
-    },
-    publish: [
-      {
-        provider: 'github',
-      },
-    ],
+    mac: {
+      category: "public.app-category.developer-tools",
+      target: ["dmg"]
+    }
   };
 };

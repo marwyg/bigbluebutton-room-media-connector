@@ -31,7 +31,7 @@ export function loadConfig() {
   } catch (error) {
     console.log('Error reading config from ' + configPath, error);
   }
- 
+
   // Second we validate the settings file
   try {
     console.log('Validating config...');
@@ -106,7 +106,7 @@ export const ConfigSchema = z.object({
   auto_reject_time: z.number(),
   hide_close_button: z.boolean(),
   keyboard_hid: z.boolean(),
-  preferred_pin_screen: z.string(),
+  preferred_pin_screen: z.union([z.string(), z.number()]),
   debug: z.boolean(),
   room: RoomSchema,
   meetings: z.array(MeetingSchema),
