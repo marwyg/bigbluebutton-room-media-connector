@@ -54,7 +54,7 @@ body {
   display: flex;
   gap: 2rem;
   justify-content: center;
-  max-width: 750px;
+  max-width: 850px;
 }
 
 .box {
@@ -145,6 +145,7 @@ body {
   gap: 1rem;
 }
 
+
 .meeting-list-item button {
   background-color: #0057a3;
   color: white;
@@ -152,6 +153,22 @@ body {
   padding: 0.5rem 0.75rem;
   border-radius: 4px;
   cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s, box-shadow 0.2s;
+}
+
+.meeting-list-item button:hover {
+  background-color: #0066c1;
+}
+
+.meeting-list-item button:focus {  
+  outline: 2px solid #0057a3;
+  outline-offset: 2px;
+}
+
+.meeting-list-item button:active {
+  background-color: #003c70;
+  transform: translateY(1px) translateX(1px);
+  box-shadow: none;
 }
 
 .scrollable {

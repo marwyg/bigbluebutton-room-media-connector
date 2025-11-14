@@ -16,7 +16,7 @@ import { join } from 'path';
 let availableDisplays = ref<String[]>([]);
 let meetings = ref<Record<string, any>[]>([]);
 let showSettingsScreen = ref(false);
-let connectionState = ref<'idle' | 'connecting' | 'pairing' | 'connected' | 'failed'>('idle');
+let connectionState = ref<'idle' | 'connecting' | 'pairing' | 'connected' | 'failed' | 'joining'>('idle');
 
 const config = inject<Config>('config')!;
 const originalConfig = ref<Config | null>(null); // used for resetting the config
@@ -83,8 +83,6 @@ const onConnectionChanged = (status: boolean) => {
   ws_connection_failed.value = !status;
 };
 
-
-
 function onVerificationRejected() {
   console.log('onVerificationRejected');
   connectionState.value = 'idle';
@@ -94,9 +92,14 @@ function onVerificationRejected() {
 }
 
 const onJoin = (meeting: any, layoutIndex: number) => {
+  connectionState.value = 'joining';
   console.log('onJoin', meeting, layoutIndex);
   console.log('joining meeting from list');
   window.electronAPI.joinMeeting(toRaw(meeting), layoutIndex);
+  // todo, use a callback or something to reset the state
+  setTimeout(function() {
+    connectionState.value = 'idle';
+  }, 10000);
 };
 
 /*
@@ -266,7 +269,7 @@ const discardConfigChanges = () => {
       <div class="box-wrapper">
 
         <template v-if="connectionState != 'idle'">
-          <!-- Loading Screen .. white background, round corners -->
+          <!-- Loading Screen with buttons to accept verification code oder cancel -->
           <div
             style="width: 750px; height: 300px; background-color: white; border-radius: 20px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; padding: 24px;">
             <template v-if="connectionState == 'pairing'">
@@ -278,6 +281,12 @@ const discardConfigChanges = () => {
                 <button class="settings-button settings-button-discard" @click="onVerificationRejected()">Cancel</button>
                 <button class="settings-button settings-button-save" @click="onVerificationAccepted()">Accept</button>
               </div>
+            </template>
+
+            <template v-if="connectionState == 'joining'">                        
+              <!-- simple 'loading' window that appears when someone is joining a predefined meeting -->
+              <LoadingSpinner />
+              <span>Connecting to meeting, please wait...</span>              
             </template>
           </div>
         </template>
@@ -594,13 +603,11 @@ const discardConfigChanges = () => {
               <div class="box-content">
                 <h3>Available Meeting Rooms</h3>
 
-                <div class="meeting-list-scrollable">
-
+                <div class="scrollable">
                   <div class="meeting-list-item" v-for="meeting in meetings" :key="meeting.name">
                     <div>{{ meeting.name }}</div>
                     <button @click="onJoin(meeting, 0)">Join</button>
                   </div>
-
                 </div>
 
                 <div class="right-box-description">

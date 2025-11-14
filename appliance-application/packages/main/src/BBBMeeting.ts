@@ -6,6 +6,7 @@ import type {DisplayManager} from './displayManager';
 import type { Layout } from './ConfigManager';
 import {v7 as uuid} from 'uuid';
 import fs from 'fs';
+import { ca } from 'zod/v4/locales';
 
 export async function createBBBMeeting(control: string, displayManager: DisplayManager, leftCallback: () => void) {
 
@@ -158,7 +159,16 @@ class BBBMeeting {
 
     let newWindows: {[key: string]: BrowserWindow} = {};
 
-    for (const [screen, url] of Object.entries(this.screens)) {
+    // todo: currently we only can open up one screen with webcams
+    // it has to be the last screen that we open up or it will break
+    const screensAsList = Object.entries(this.screens);
+    const cameraScreenIndex = screensAsList.findIndex(([key, value]) => value.includes("CAMERAS_ONLY"));
+    if (cameraScreenIndex !== -1) {
+      const [camera_display] = screensAsList.splice(cameraScreenIndex, 1);
+      screensAsList.push(camera_display);
+    }
+
+    for (const [screen, url] of screensAsList) {
       const screenDisplay = this.displayManager.getDisplay(screen);
 
       if (screenDisplay == null) {
@@ -205,8 +215,9 @@ class BBBMeeting {
       });
       console.log('\n' + screenDisplay.label + ': Loading URL: ' + url);
       await screenWindow.loadURL(url);
+      // todo: do we need this timeout?
+      await new Promise(r => setTimeout(r, 2000));
       console.log(screenDisplay.label + ': Loading of URL finished.\n');
-
       newWindows[screenDisplay.label] = screenWindow;
 
       if (url.includes('userdata-bbb_auto_join_audio=true')) {
