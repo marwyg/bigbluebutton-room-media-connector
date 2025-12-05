@@ -13,8 +13,11 @@ export interface HID {
 
 export interface HIDActions {
   leave: () => void;
-  mute: () => void;
-  unmute: () => void;
+  // mute: () => void;
+  // unmute: () => void;
+  toggleMute: () => void;
+  toggleRaiseHand: () => void;
+  becomePresenter: () => void;
   layout1: () => void;
   layout2: () => void;
   layout3: () => void;

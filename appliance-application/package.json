@@ -60,6 +60,7 @@
     "@elgato-stream-deck/node": "^7.1.1",
     "@heroicons/vue": "^2.0.18",
     "@julusian/jpeg-turbo": "^2.2.0",
+    "apollo-link-timeout": "^5.0.4",
     "axios": "^1.6.2",
     "electron-updater": "^6.3.2",
     "graphql": "^16.8.1",

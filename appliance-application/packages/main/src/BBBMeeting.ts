@@ -235,17 +235,31 @@ class BBBMeeting {
     this.windows = newWindows;
   }
 
-  public mute() {
-    this.executeJavaScriptInMediaScreen(
-      'document.querySelectorAll(\'button[data-test="muteMicButton"]\')[0].click()',
-    ).then(r => console.log(r));
+  public toggleMute() {
+    return this.bbbGraphQl.toggleMute();
   }
 
-  public unmute() {
-    this.executeJavaScriptInMediaScreen(
-      'document.querySelectorAll(\'button[data-test="unmuteMicButton"]\')[0].click()',
-    ).then(r => console.log(r));
+  public becomePresenter() {
+    this.bbbGraphQl.becomePresenter();
   }
+
+  public toggleRaiseHand() {
+    return this.bbbGraphQl.toggleRaiseHand();
+  }
+
+  // public mute() {
+  //   this.bbbGraphQl.becomePresenter();
+  //   // this.executeJavaScriptInMediaScreen(
+  //   //   'document.querySelectorAll(\'button[data-test="muteMicButton"]\')[0].click()',
+  //   // ).then(r => console.log(r));
+  // }
+
+  // public unmute() {
+  //   this.bbbGraphQl.becomePresenter();
+  //   // this.executeJavaScriptInMediaScreen(
+  //   //   'document.querySelectorAll(\'button[data-test="unmuteMicButton"]\')[0].click()',
+  //   // ).then(r => console.log(r));
+  // }
 
   public async getMediaDevices() {
     const command = `

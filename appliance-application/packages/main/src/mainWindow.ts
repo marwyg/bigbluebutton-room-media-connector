@@ -168,12 +168,42 @@ async function createWindow() {
     hdiDevices.forEach(device => {
       device.connected({
         leave: leaveMeeting,
-        mute: () => {
-          bbbMeeting.mute();
+
+        toggleMute: () => {
+          const mutedPromise = bbbMeeting.toggleMute();
+          mutedPromise.then((muted: Boolean) => {
+            if (device instanceof StreamDeckHID) {
+              device.switchMuteIcon(muted);
+            }
+          })
+          .catch(error => {
+            console.error("Error toggling mute:", error);
+          });
         },
-        unmute: () => {
-          bbbMeeting.unmute();
+
+        toggleRaiseHand: () => {
+          const raiseHandPromise = bbbMeeting.toggleRaiseHand();
+          raiseHandPromise.then((raiseHand: Boolean) => {
+            if (device instanceof StreamDeckHID) {
+              device.switchRaiseHandIcon(raiseHand);
+            }
+          })
+          .catch(error => {
+            console.error("Error toggling mute:", error);
+          });
         },
+
+
+        becomePresenter: () => {
+          bbbMeeting.becomePresenter();
+        },
+
+        // mute: () => {
+        //   bbbMeeting.mute();
+        // },
+        // unmute: () => {
+        //   bbbMeeting.unmute();
+        // },
         layout1: () => {
           console.log('Layout 1 selected via HDI device');
           bbbMeeting.openScreens(config.room.layouts[0]);

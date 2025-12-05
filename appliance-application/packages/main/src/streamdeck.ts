@@ -15,11 +15,16 @@ export class StreamDeckHID implements HID {
   static ACCEPT_BUTTON: StreamDeckButtonControlDefinitionLcdFeedback;
   static REJECT_BUTTON: StreamDeckButtonControlDefinitionLcdFeedback;
   static LEAVE_BUTTON: StreamDeckButtonControlDefinitionLcdFeedback;
-  static MUTE_BUTTON: StreamDeckButtonControlDefinitionLcdFeedback;
-  static UNMUTE_BUTTON: StreamDeckButtonControlDefinitionLcdFeedback;
-  static LAYOUT1: StreamDeckButtonControlDefinitionLcdFeedback;
-  static LAYOUT2: StreamDeckButtonControlDefinitionLcdFeedback;
-  static LAYOUT3: StreamDeckButtonControlDefinitionLcdFeedback;
+  // static MUTE_BUTTON: StreamDeckButtonControlDefinitionLcdFeedback;
+  // static UNMUTE_BUTTON: StreamDeckButtonControlDefinitionLcdFeedback;
+
+  static TOGGLE_MUTE_BUTTON: StreamDeckButtonControlDefinitionLcdFeedback
+  static TOGGLE_RAISEHAND_BUTTON: StreamDeckButtonControlDefinitionLcdFeedback
+  static BECOME_PRESENTER_BUTTON: StreamDeckButtonControlDefinitionLcdFeedback
+
+  static LAYOUT1_BUTTON: StreamDeckButtonControlDefinitionLcdFeedback;
+  static LAYOUT2_BUTTON: StreamDeckButtonControlDefinitionLcdFeedback;
+  static LAYOUT3_BUTTON: StreamDeckButtonControlDefinitionLcdFeedback;
 
   private streamDeck: StreamDeck;
 
@@ -29,7 +34,10 @@ export class StreamDeckHID implements HID {
   private REJECT_IMG!: Buffer;
   private LEAVE_IMG!: Buffer;
   private MUTE_IMG!: Buffer;
+  private HAND_IMG!: Buffer;
   private UNMUTE_IMG!: Buffer;
+
+  private PRESENTER_IMG!: Buffer;
 
   private LAYOUT1_IMG!: Buffer;
   private LAYOUT2_IMG!: Buffer;
@@ -45,8 +53,13 @@ export class StreamDeckHID implements HID {
   private rejectCallback!: () => void;
 
   private leaveCallback!: () => void;
-  private muteCallback!: () => void;
-  private unmuteCallback!: () => void;
+
+  // private muteCallback!: () => void;
+  // private unmuteCallback!: () => void;
+
+  private toggleMuteCallback!: () => void;
+  private becomePresenterCallback!: () => void;
+  private raiseHandCallback!: () => void;
 
   private layout1Callback!: () => void;
   private layout2Callback!: () => void;
@@ -85,25 +98,35 @@ export class StreamDeckHID implements HID {
       }
 
       if (this.isConnected) {
-        if (button.index === StreamDeckHID.MUTE_BUTTON.index) {
-          this.muteCallback();
-        }
+        // if (button.index === StreamDeckHID.MUTE_BUTTON.index) {
+        //   this.muteCallback();
+        // }
 
-        if (button.index === StreamDeckHID.UNMUTE_BUTTON.index) {
-          this.unmuteCallback();
+        // if (button.index === StreamDeckHID.UNMUTE_BUTTON.index) {
+        //   this.unmuteCallback();
+        // }
+
+        if (button.index === StreamDeckHID.TOGGLE_MUTE_BUTTON.index) {
+          this.toggleMuteCallback();
+        }
+        if (button.index === StreamDeckHID.BECOME_PRESENTER_BUTTON.index) {
+          this.becomePresenterCallback();
+        }
+        if (button.index === StreamDeckHID.TOGGLE_RAISEHAND_BUTTON.index) {
+          this.raiseHandCallback();
         }
 
         if (button.index === StreamDeckHID.LEAVE_BUTTON.index) {
           this.leaveCallback();
         }
 
-        if (button.index === StreamDeckHID.LAYOUT1.index) {
+        if (button.index === StreamDeckHID.LAYOUT1_BUTTON.index) {
           this.layout1Callback();
         }
-        if (button.index === StreamDeckHID.LAYOUT2.index) {
+        if (button.index === StreamDeckHID.LAYOUT2_BUTTON.index) {
           this.layout2Callback();
         }
-        if (button.index === StreamDeckHID.LAYOUT3.index) {
+        if (button.index === StreamDeckHID.LAYOUT3_BUTTON.index) {
           this.layout3Callback();
         }
       }
@@ -131,29 +154,40 @@ export class StreamDeckHID implements HID {
 
     controls.forEach(control => {
       if (control.type === 'button' && control.feedbackType == 'lcd') {
-        if (control.row == 0 && control.column == 0) {
-          StreamDeckHID.BBB_BUTTON = control;
-        }
-        if (control.row == rows && control.column == columns) {
+        // if (control.row == 0 && control.column == 0) {
+        //   StreamDeckHID.BBB_BUTTON = control;
+        // }
+        if (control.row == 0 && control.column == columns) {
           StreamDeckHID.LEAVE_BUTTON = control;
         }
         if (control.row == 1 && control.column == 0) {
           StreamDeckHID.ACCEPT_BUTTON = control;
-          StreamDeckHID.UNMUTE_BUTTON = control;
+          //StreamDeckHID.UNMUTE_BUTTON = control;
         }
         if (control.row == 1 && control.column == 1) {
           StreamDeckHID.REJECT_BUTTON = control;
-          StreamDeckHID.MUTE_BUTTON = control;
+          //StreamDeckHID.MUTE_BUTTON = control;
         }
 
+        if (control.row == 2 && control.column == 0) {
+          StreamDeckHID.TOGGLE_RAISEHAND_BUTTON = control;
+        }
+        if (control.row == 2 && control.column == 1) {
+          StreamDeckHID.TOGGLE_MUTE_BUTTON = control;
+        }
+        if (control.row == 2 && control.column == 2) {
+          StreamDeckHID.BECOME_PRESENTER_BUTTON = control;
+        }
+
+        if (control.row == 0 && control.column == 0) {
+          StreamDeckHID.BBB_BUTTON = control;
+          StreamDeckHID.LAYOUT1_BUTTON = control;
+        }
+        if (control.row == 0 && control.column == 1) {
+          StreamDeckHID.LAYOUT2_BUTTON = control;
+        }
         if (control.row == 0 && control.column == 2) {
-          StreamDeckHID.LAYOUT1 = control;
-        }
-        if (control.row == 0 && control.column == 3) {
-          StreamDeckHID.LAYOUT2 = control;
-        }
-        if (control.row == 0 && control.column == 4) {
-          StreamDeckHID.LAYOUT3 = control;
+          StreamDeckHID.LAYOUT3_BUTTON = control;
         }
       }
     });
@@ -164,17 +198,19 @@ export class StreamDeckHID implements HID {
     this.ACCEPT_IMG = await this.getButtonImageBuffer(StreamDeckHID.ACCEPT_BUTTON, 'accept.png');
     this.REJECT_IMG = await this.getButtonImageBuffer(StreamDeckHID.REJECT_BUTTON, 'reject.png');
     this.LEAVE_IMG = await this.getButtonImageBuffer(StreamDeckHID.LEAVE_BUTTON, 'leave.png');
-    this.MUTE_IMG = await this.getButtonImageBuffer(StreamDeckHID.MUTE_BUTTON, 'mute.png');
-    this.UNMUTE_IMG = await this.getButtonImageBuffer(StreamDeckHID.UNMUTE_BUTTON, 'unmute.png');
 
-    this.LAYOUT1_IMG = await this.getButtonImageBuffer(StreamDeckHID.LAYOUT1, 'L1.png');
-    this.LAYOUT2_IMG = await this.getButtonImageBuffer(StreamDeckHID.LAYOUT2, 'L2.png');
-    this.LAYOUT3_IMG = await this.getButtonImageBuffer(StreamDeckHID.LAYOUT3, 'L3.png');
+    this.HAND_IMG = await this.getButtonImageBuffer(StreamDeckHID.TOGGLE_RAISEHAND_BUTTON, 'hand.png');
+    this.MUTE_IMG = await this.getButtonImageBuffer(StreamDeckHID.TOGGLE_MUTE_BUTTON, 'mute.png');
+    this.UNMUTE_IMG = await this.getButtonImageBuffer(StreamDeckHID.TOGGLE_MUTE_BUTTON, 'unmute.png');
+    this.PRESENTER_IMG = await this.getButtonImageBuffer(StreamDeckHID.BECOME_PRESENTER_BUTTON, 'presentation.png')
 
-    this.LAYOUT1_REVERSE_IMG = await this.getButtonImageBuffer(StreamDeckHID.LAYOUT1, 'L1_reverse.png',);
-    this.LAYOUT2_REVERSE_IMG = await this.getButtonImageBuffer(StreamDeckHID.LAYOUT2, 'L2_reverse.png',);
-    this.LAYOUT3_REVERSE_IMG = await this.getButtonImageBuffer(StreamDeckHID.LAYOUT3, 'L3_reverse.png',);
+    this.LAYOUT1_IMG = await this.getButtonImageBuffer(StreamDeckHID.LAYOUT1_BUTTON, 'L1.png');
+    this.LAYOUT2_IMG = await this.getButtonImageBuffer(StreamDeckHID.LAYOUT2_BUTTON, 'L2.png');
+    this.LAYOUT3_IMG = await this.getButtonImageBuffer(StreamDeckHID.LAYOUT3_BUTTON, 'L3.png');
 
+    this.LAYOUT1_REVERSE_IMG = await this.getButtonImageBuffer(StreamDeckHID.LAYOUT1_BUTTON, 'L1_reverse.png',);
+    this.LAYOUT2_REVERSE_IMG = await this.getButtonImageBuffer(StreamDeckHID.LAYOUT2_BUTTON, 'L2_reverse.png',);
+    this.LAYOUT3_REVERSE_IMG = await this.getButtonImageBuffer(StreamDeckHID.LAYOUT3_BUTTON, 'L3_reverse.png',);
 
     const imagePath = path.resolve(__dirname, '../assets/bbb.png');
 
@@ -238,7 +274,6 @@ export class StreamDeckHID implements HID {
 
   showVerificationButtons(): void {
     this.streamDeck.clearPanel();
-
     this.streamDeck.fillKeyBuffer(StreamDeckHID.BBB_BUTTON.index, this.BBB_IMG);
     this.streamDeck.fillKeyBuffer(StreamDeckHID.ACCEPT_BUTTON.index, this.ACCEPT_IMG);
     this.streamDeck.fillKeyBuffer(StreamDeckHID.REJECT_BUTTON.index, this.REJECT_IMG);
@@ -254,29 +289,39 @@ export class StreamDeckHID implements HID {
     this.streamDeck.clearKey(StreamDeckHID.REJECT_BUTTON.index);
   }
 
+  switchMuteIcon (muted: Boolean): void {
+    this.streamDeck.fillKeyBuffer(StreamDeckHID.TOGGLE_MUTE_BUTTON.index, muted ? this.MUTE_IMG : this.UNMUTE_IMG);
+  }
+
+  switchRaiseHandIcon (handRaised: Boolean): void {
+    // todo.. show raised hand and lowered hand
+    // todo.. implement callback if somebody else loweres the hand.. the icon has to change in this case
+    this.streamDeck.fillKeyBuffer(StreamDeckHID.TOGGLE_RAISEHAND_BUTTON.index, handRaised ? this.HAND_IMG : this.HAND_IMG);
+  }
+
   selectLayout(layout: number): void {
     if (layout < 0 || layout > 2) {
       throw new Error('Invalid layout index');
     }
 
-    this.streamDeck.clearKey(StreamDeckHID.LAYOUT1.index);
-    this.streamDeck.clearKey(StreamDeckHID.LAYOUT2.index);
-    this.streamDeck.clearKey(StreamDeckHID.LAYOUT3.index);
+    this.streamDeck.clearKey(StreamDeckHID.LAYOUT1_BUTTON.index);
+    this.streamDeck.clearKey(StreamDeckHID.LAYOUT2_BUTTON.index);
+    this.streamDeck.clearKey(StreamDeckHID.LAYOUT3_BUTTON.index);
 
     if (layout == 0) {
-      this.streamDeck.fillKeyBuffer(StreamDeckHID.LAYOUT1.index, this.LAYOUT1_REVERSE_IMG);
-      this.streamDeck.fillKeyBuffer(StreamDeckHID.LAYOUT2.index, this.LAYOUT2_IMG);
-      this.streamDeck.fillKeyBuffer(StreamDeckHID.LAYOUT3.index, this.LAYOUT3_IMG);
+      this.streamDeck.fillKeyBuffer(StreamDeckHID.LAYOUT1_BUTTON.index, this.LAYOUT1_REVERSE_IMG);
+      this.streamDeck.fillKeyBuffer(StreamDeckHID.LAYOUT2_BUTTON.index, this.LAYOUT2_IMG);
+      this.streamDeck.fillKeyBuffer(StreamDeckHID.LAYOUT3_BUTTON.index, this.LAYOUT3_IMG);
     }
     if (layout == 1) {
-      this.streamDeck.fillKeyBuffer(StreamDeckHID.LAYOUT1.index, this.LAYOUT1_IMG);
-      this.streamDeck.fillKeyBuffer(StreamDeckHID.LAYOUT2.index, this.LAYOUT2_REVERSE_IMG);
-      this.streamDeck.fillKeyBuffer(StreamDeckHID.LAYOUT3.index, this.LAYOUT3_IMG);
+      this.streamDeck.fillKeyBuffer(StreamDeckHID.LAYOUT1_BUTTON.index, this.LAYOUT1_IMG);
+      this.streamDeck.fillKeyBuffer(StreamDeckHID.LAYOUT2_BUTTON.index, this.LAYOUT2_REVERSE_IMG);
+      this.streamDeck.fillKeyBuffer(StreamDeckHID.LAYOUT3_BUTTON.index, this.LAYOUT3_IMG);
     }
     if (layout == 2) {
-      this.streamDeck.fillKeyBuffer(StreamDeckHID.LAYOUT1.index, this.LAYOUT1_IMG);
-      this.streamDeck.fillKeyBuffer(StreamDeckHID.LAYOUT2.index, this.LAYOUT2_IMG);
-      this.streamDeck.fillKeyBuffer(StreamDeckHID.LAYOUT3.index, this.LAYOUT3_REVERSE_IMG);
+      this.streamDeck.fillKeyBuffer(StreamDeckHID.LAYOUT1_BUTTON.index, this.LAYOUT1_IMG);
+      this.streamDeck.fillKeyBuffer(StreamDeckHID.LAYOUT2_BUTTON.index, this.LAYOUT2_IMG);
+      this.streamDeck.fillKeyBuffer(StreamDeckHID.LAYOUT3_BUTTON.index, this.LAYOUT3_REVERSE_IMG);
     }
   }
 
@@ -290,18 +335,25 @@ export class StreamDeckHID implements HID {
     this.streamDeck.clearPanel();
 
     this.streamDeck.fillKeyBuffer(StreamDeckHID.BBB_BUTTON.index, this.BBB_IMG);
-    this.streamDeck.fillKeyBuffer(StreamDeckHID.MUTE_BUTTON.index, this.MUTE_IMG);
-    this.streamDeck.fillKeyBuffer(StreamDeckHID.UNMUTE_BUTTON.index, this.UNMUTE_IMG);
+    // this.streamDeck.fillKeyBuffer(StreamDeckHID.MUTE_BUTTON.index, this.MUTE_IMG);
+    // this.streamDeck.fillKeyBuffer(StreamDeckHID.UNMUTE_BUTTON.index, this.UNMUTE_IMG);
     this.streamDeck.fillKeyBuffer(StreamDeckHID.LEAVE_BUTTON.index, this.LEAVE_IMG);
 
-    this.streamDeck.fillKeyBuffer(StreamDeckHID.LAYOUT1.index, this.LAYOUT1_REVERSE_IMG); // TODO: currently always layout 1 is selected at start
-    this.streamDeck.fillKeyBuffer(StreamDeckHID.LAYOUT2.index, this.LAYOUT2_IMG);
-    this.streamDeck.fillKeyBuffer(StreamDeckHID.LAYOUT3.index, this.LAYOUT3_IMG);
+    this.streamDeck.fillKeyBuffer(StreamDeckHID.LAYOUT1_BUTTON.index, this.LAYOUT1_REVERSE_IMG); // TODO: currently always layout 1 is selected at start
+    this.streamDeck.fillKeyBuffer(StreamDeckHID.LAYOUT2_BUTTON.index, this.LAYOUT2_IMG);
+    this.streamDeck.fillKeyBuffer(StreamDeckHID.LAYOUT3_BUTTON.index, this.LAYOUT3_IMG);
+
+    this.streamDeck.fillKeyBuffer(StreamDeckHID.TOGGLE_MUTE_BUTTON.index, this.MUTE_IMG);
+    this.streamDeck.fillKeyBuffer(StreamDeckHID.BECOME_PRESENTER_BUTTON.index, this.PRESENTER_IMG);
+    this.streamDeck.fillKeyBuffer(StreamDeckHID.TOGGLE_RAISEHAND_BUTTON.index, this.HAND_IMG);
 
     this.isConnected = true;
-    this.muteCallback = actions.mute;
-    this.unmuteCallback = actions.unmute;
+    // this.muteCallback = actions.mute;
+    // this.unmuteCallback = actions.unmute;
     this.leaveCallback = actions.leave;
+    this.toggleMuteCallback = actions.toggleMute;
+    this.becomePresenterCallback = actions.becomePresenter;
+    this.raiseHandCallback = actions.toggleRaiseHand;
 
     this.layout1Callback = actions.layout1;
     this.layout2Callback = actions.layout2;
