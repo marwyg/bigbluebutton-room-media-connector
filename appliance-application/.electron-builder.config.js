@@ -28,6 +28,18 @@ module.exports = async function () {
     productName: "BigBlueButton-RMC",
     copyright: "Copyright © 2025 ${author}",
 
+    linux: {
+      target: ["AppImage", "rpm"],
+      category: "Utility",
+      icon: "buildResources/icon.png",
+    },
+
+    rpm: {
+      packageCategory: "Utility",
+      maintainer: "Samuel Weirich <samuel.weirich@ges.thm.de>",
+      vendor: "Your Company Name",
+    },
+
     mac: {
       category: "public.app-category.developer-tools",
       target: ["dmg"]
