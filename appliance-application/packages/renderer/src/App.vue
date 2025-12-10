@@ -1,16 +1,11 @@
+
 <script lang="ts" setup>
-import PairingCode from './components/PairingCode.vue';
 import { inject, onMounted, onBeforeUnmount, ref, toRaw, computed } from 'vue';
 import BBBWebSocket from './websocket';
 import LoadingSpinner from './components/LoadingSpinner.vue';
-import ConnectionError from './components/ConnectionError.vue';
-import VerifyConnection from './components/VerifyConnection.vue';
-import ConfigMissing from './components/ConfigMissing.vue';
 import { XMarkIcon } from '@heroicons/vue/24/solid';
-//import type { Config } from '../../common/config.ts';
 import type { Config, JoinParameter, Layout } from '../../main/src/ConfigManager';
 import MeetingComponent from './components/MeetingComponent.vue';
-import { join } from 'path';
 
 
 let availableDisplays = ref<String[]>([]);
@@ -34,8 +29,6 @@ const handleSettingsKeyDown = (event: KeyboardEvent) => {
 const pin = ref<string | null>(null);
 const verificationCode = ref<string | null>(null);
 const ws_connection_failed = ref(false);
-
-
 
 
 // Triggered when the room-hub sends a new pairing pin
@@ -173,10 +166,13 @@ onMounted(() => {
   }
 });
 
-function addMeeting() {
+function addMeeting() { // todo, make all fields editable
   config.meetings.push({
-    link: ''
-  })
+    link: '',
+    name: '',
+    provider: '',
+    description: ''
+  });
 }
 
 function removeMeeting(index: number) {
@@ -283,10 +279,10 @@ const discardConfigChanges = () => {
               </div>
             </template>
 
-            <template v-if="connectionState == 'joining'">                        
+            <template v-if="connectionState == 'joining'">
               <!-- simple 'loading' window that appears when someone is joining a predefined meeting -->
               <LoadingSpinner />
-              <span>Connecting to meeting, please wait...</span>              
+              <span>Connecting to meeting, please wait...</span>
             </template>
           </div>
         </template>
@@ -394,7 +390,7 @@ const discardConfigChanges = () => {
                 <div class="setting-description">Define the interval of the connection retry mechanism.
                   Intervals
                   are defined in milliseconds.</div>
-                <input type="number" class="general-input" placeholder="5000"
+                <input type="number" class="general-input" placeholder="5000"e
                   v-model="config.control_server.reconnect_interval" />
 
                 <!-- Ping Interval -->
@@ -410,6 +406,7 @@ const discardConfigChanges = () => {
 
                 <div class="setting-title">Meetings</div>
 
+                <!-- TODO: remove global meeting provider and url.. feature was removed -->
                 <!-- Meeting Provider -->
                 <div class="setting-name">Meeting Provider Name</div>
                 <div class="setting-description">Name of the Meeting Provider. Like 'pilos' or 'greenlight'. (Currently

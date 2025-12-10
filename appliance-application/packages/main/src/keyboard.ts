@@ -4,10 +4,10 @@ import { globalShortcut } from 'electron';
 export class KeyboardHID implements HID {
 
   private hasVerificationPending = false;
+  private isConnected: boolean = false;
 
   private acceptCallback: () => void = () => {};
   private rejectCallback: () => void = () => {};
-
   private leaveCallback: () => void = () => {};
   private toggleMuteCallback: () => void = () => {};
   private toggleRaiseHandCallback: () => void = () => {}
@@ -15,7 +15,6 @@ export class KeyboardHID implements HID {
   private layout1Callback: () => void = () => {};
   private layout2Callback: () => void = () => {};
   private layout3Callback: () => void = () => {};
-  private isConnected: boolean = false;
 
   constructor() {
     globalShortcut.register('CommandOrControl+Alt+M', () => {
@@ -84,7 +83,6 @@ export class KeyboardHID implements HID {
   }
 
   connected(actions: HIDActions): void {
-
     this.isConnected = true;
     this.becomePresenterBallback = actions.becomePresenter
     this.toggleMuteCallback =  actions.toggleMute
@@ -98,4 +96,5 @@ export class KeyboardHID implements HID {
   disconnected(): void {
     this.isConnected = false;
   }
+
 }
