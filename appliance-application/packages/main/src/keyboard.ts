@@ -9,19 +9,28 @@ export class KeyboardHID implements HID {
   private rejectCallback: () => void = () => {};
 
   private leaveCallback: () => void = () => {};
-  private muteCallback: () => void = () => {};
-  private unmuteCallback: () => void = () => {};
+  private toggleMuteCallback: () => void = () => {};
+  private toggleRaiseHandCallback: () => void = () => {}
+  private becomePresenterBallback: () => void = () => {};
+  private layout1Callback: () => void = () => {};
+  private layout2Callback: () => void = () => {};
+  private layout3Callback: () => void = () => {};
   private isConnected: boolean = false;
 
   constructor() {
     globalShortcut.register('CommandOrControl+Alt+M', () => {
       if (this.isConnected) {
-        this.muteCallback();
+        this.toggleMuteCallback();
       }
     });
-    globalShortcut.register('CommandOrControl+Alt+U', () => {
+    globalShortcut.register('CommandOrControl+Alt+H', () => {
       if (this.isConnected) {
-        this.unmuteCallback();
+        this.toggleRaiseHandCallback();
+      }
+    });
+    globalShortcut.register('CommandOrControl+Alt+P', () => {
+      if (this.isConnected) {
+        this.becomePresenterBallback();
       }
     });
     globalShortcut.register('CommandOrControl+Alt+L', () => {
@@ -29,7 +38,6 @@ export class KeyboardHID implements HID {
         this.leaveCallback();
       }
     });
-
     globalShortcut.register('CommandOrControl+Alt+A', () => {
       if (this.hasVerificationPending) {
         this.acceptCallback();
@@ -40,12 +48,25 @@ export class KeyboardHID implements HID {
         this.rejectCallback();
       }
     });
-
+    globalShortcut.register('CommandOrControl+Alt+1', () => {
+      if (this.isConnected) {
+        this.layout1Callback();
+      }
+    });
+    globalShortcut.register('CommandOrControl+Alt+2', () => {
+      if (this.isConnected) {
+        this.layout2Callback();
+      }
+    });
+    globalShortcut.register('CommandOrControl+Alt+3', () => {
+      if (this.isConnected) {
+        this.layout3Callback();
+      }
+    });
   }
 
   requireVerification(accept: () => void, reject: () => void): void {
     this.hasVerificationPending = true;
-
     this.acceptCallback = accept;
     this.rejectCallback = reject;
   }
@@ -65,8 +86,12 @@ export class KeyboardHID implements HID {
   connected(actions: HIDActions): void {
 
     this.isConnected = true;
-    this.muteCallback = actions.mute;
-    this.unmuteCallback = actions.unmute;
+    this.becomePresenterBallback = actions.becomePresenter
+    this.toggleMuteCallback =  actions.toggleMute
+    this.toggleRaiseHandCallback = actions.toggleRaiseHand
+    this.layout1Callback = actions.layout1
+    this.layout2Callback = actions.layout2
+    this.layout3Callback = actions.layout3
     this.leaveCallback = actions.leave;
   }
 

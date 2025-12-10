@@ -1,11 +1,10 @@
 import * as path from 'path';
 import fs from 'fs';
-import sharp, {Sharp} from 'sharp';
+import sharp from 'sharp';
 import type {StreamDeck} from '@elgato-stream-deck/node';
 import {fileURLToPath} from 'url';
 import type {HID, HIDActions} from './HID';
 import type {StreamDeckButtonControlDefinitionLcdFeedback} from '@elgato-stream-deck/core/dist/controlDefinition';
-import { buffer } from 'stream/consumers';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

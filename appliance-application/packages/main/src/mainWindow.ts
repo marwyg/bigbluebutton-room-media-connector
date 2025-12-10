@@ -162,11 +162,6 @@ async function createWindow() {
       ipcMain.off('pluginDisconnected', pluginDisconnected);
     };
 
-    // Log the room layouts
-    //console.log('room layout 1:', config.room.layouts[0].label);
-    //console.log('room layout 2:', config.room.layouts[1].label);
-    //console.log('room layout 3:', config.room.layouts[2].label);
-
     // Notify all connected HDI devices that the user has joined the meeting
     hdiDevices.forEach(device => {
       device.connected({
@@ -200,25 +195,25 @@ async function createWindow() {
           bbbMeeting.becomePresenter();
         },
 
-        layout1: () => {  // TODO: make the layout selection more nice
+        layout1: () => {  // TODO: make the layout selection more nice and generic
           console.log('Layout 1 selected via HDI device');
           if (device instanceof StreamDeckHID) device.selectLayout(0);
           bbbMeeting.openScreens(config.room.layouts[0]).then(() => {
-            device.unlockLayoutKeys();
+            (device as StreamDeckHID).unlockLayoutKeys();
           });
         },
         layout2: () => {
           console.log('Layout 2 selected via HDI device');
           if (device instanceof StreamDeckHID) device.selectLayout(1);
           bbbMeeting.openScreens(config.room.layouts[1]).then(() => {
-            device.unlockLayoutKeys();
+            (device as StreamDeckHID).unlockLayoutKeys();
           });
         },
         layout3: () => {
           console.log('Layout 3 selected via HDI device');
           if (device instanceof StreamDeckHID) device.selectLayout(2);
           bbbMeeting.openScreens(config.room.layouts[2]).then(() => {
-            device.unlockLayoutKeys();
+            (device as StreamDeckHID).unlockLayoutKeys();
           });
         },
       });

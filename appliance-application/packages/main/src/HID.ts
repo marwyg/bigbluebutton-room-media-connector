@@ -6,7 +6,6 @@ export interface HID {
   connected(actions: HIDActions): void;
   disconnected(): void;
   close(): Promise<void>;
-  unlockLayoutKeys(): void;
 }
 
 export interface HIDActions {
