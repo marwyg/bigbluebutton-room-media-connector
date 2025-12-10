@@ -4,10 +4,12 @@ import {createBBBMeeting} from './BBBMeeting';
 import {fileURLToPath} from 'url';
 import path from 'path';
 import {displayManager, hdiDevices} from './index';
-import {config, configPath, saveConfig} from './ConfigManager';
+import {config, configPath, saveConfig, Meeting} from './ConfigManager';
 import type {Config} from './ConfigManager';
 import {StreamDeckHID} from './streamdeck';
-import { createMeetingRoomProvider } from './meeting_room_provider/meetingProviderFactory';
+import { createMeetingRoomProviders } from './meeting_room_provider/meetingProviderFactory';
+import { HIDDevice } from '@elgato-stream-deck/core';
+import { HID } from './HID';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -17,7 +19,7 @@ const __dirname = path.dirname(__filename);
  */
 async function createWindow() {
 
-  const meetingRoomProvider = createMeetingRoomProvider(config.meeting_provider);
+  const meetingRoomProviderMap = createMeetingRoomProviders();
 
   // Get the display for the pin screen
   const pinDisplay = getPINScreen();
@@ -97,13 +99,14 @@ async function createWindow() {
 
     // Get the join URL
     console.log("Requesting join URL from Meeting Room Provider");
+    const meetingRoomProvider = meetingRoomProviderMap[meeting.provider];
     const joinUrl = await meetingRoomProvider.getJoinUrl(meeting, config); // only works for predefined meetings. breaks plugin join urls
 
     console.log("Got join URL from meetingRoomProvider, creating BBB Meeting");
 
     const bbbMeeting = await createBBBMeeting(joinUrl, displayManager, leftCallback);
 
-    console.log("BBBMeeting: ", bbbMeeting);
+    // console.log("BBBMeeting: ", bbbMeeting);
 
     if (bbbMeeting === false) {
       console.log('failed to join');
@@ -160,9 +163,9 @@ async function createWindow() {
     };
 
     // Log the room layouts
-    console.log('room layout 1:', config.room.layouts[0].label);
-    console.log('room layout 2:', config.room.layouts[1].label);
-    console.log('room layout 3:', config.room.layouts[2].label);
+    //console.log('room layout 1:', config.room.layouts[0].label);
+    //console.log('room layout 2:', config.room.layouts[1].label);
+    //console.log('room layout 3:', config.room.layouts[2].label);
 
     // Notify all connected HDI devices that the user has joined the meeting
     hdiDevices.forEach(device => {
@@ -193,46 +196,51 @@ async function createWindow() {
           });
         },
 
-
         becomePresenter: () => {
           bbbMeeting.becomePresenter();
         },
 
-        // mute: () => {
-        //   bbbMeeting.mute();
-        // },
-        // unmute: () => {
-        //   bbbMeeting.unmute();
-        // },
-        layout1: () => {
+        layout1: () => {  // TODO: make the layout selection more nice
           console.log('Layout 1 selected via HDI device');
-          bbbMeeting.openScreens(config.room.layouts[0]);
-          if (device instanceof StreamDeckHID) device.selectLayout(0); // TODO: make this more nice
+          if (device instanceof StreamDeckHID) device.selectLayout(0);
+          bbbMeeting.openScreens(config.room.layouts[0]).then(() => {
+            device.unlockLayoutKeys();
+          });
         },
         layout2: () => {
           console.log('Layout 2 selected via HDI device');
-          bbbMeeting.openScreens(config.room.layouts[1]);
           if (device instanceof StreamDeckHID) device.selectLayout(1);
+          bbbMeeting.openScreens(config.room.layouts[1]).then(() => {
+            device.unlockLayoutKeys();
+          });
         },
         layout3: () => {
           console.log('Layout 3 selected via HDI device');
-          bbbMeeting.openScreens(config.room.layouts[2]);
           if (device instanceof StreamDeckHID) device.selectLayout(2);
+          bbbMeeting.openScreens(config.room.layouts[2]).then(() => {
+            device.unlockLayoutKeys();
+          });
         },
       });
     });
   });
 
   ipcMain.handle('requestMeetingRooms', async () => {
-    const meetingRooms = await meetingRoomProvider.requestMeetingRooms(config);
+    const roomList = []; // todo: create a minimal meeting interface
+    const meetings: Meeting[] = config.meetings;
+    for (let m of meetings) {
+      const room = await meetingRoomProviderMap[m.provider].requestMeetingRooms(m);
+      roomList.push(room);
+    }
+    //const meetingRooms = await meetingRoomProvider.requestMeetingRooms(config);
     // console.log('meetingRooms', meetingRooms);
-    return meetingRooms;
+    return roomList;
   });
 
   ipcMain.handle('requestAvailableDisplays', async () => {
     const displays = await displayManager.getDisplays();
     // we just need the display names as a list
-    return displays.map(display => display.label);
+    return displays.map(display => display.id);
   });
 
   // Message from UI to close the app
@@ -307,7 +315,7 @@ function getPINScreen() {
 
   if (preferredPinDisplay === null) {
     console.error(
-      `Preferred pin screen '${pinDisplayLabelOrId}' not found. Falling back to the display '${pinDisplay.label}'`,
+      `Preferred pin screen '${pinDisplayLabelOrId}' not found. Falling back to the display with id '${pinDisplay.id}'`,
     );
   } else {
     console.log(`Pin screen set to '${pinDisplayLabelOrId}'`);
@@ -315,6 +323,7 @@ function getPINScreen() {
 
   return pinDisplay;
 }
+
 /**
  * Restore an existing BrowserWindow or Create a new BrowserWindow.
  */

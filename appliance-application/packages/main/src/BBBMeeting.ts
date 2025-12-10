@@ -75,7 +75,7 @@ class BBBMeeting {
       })
       .subscribe({
         next(data) {
-          console.log('getMeetingEndData', JSON.stringify(data, null, 2));
+          //console.log('getMeetingEndData', JSON.stringify(data, null, 2));
           const our_user = data.data.user_current[0];
           if (our_user.meeting.ended === true // when we click the "end meeting for all" button
             || our_user.currentlyInMeeting === false) { // when we click "leave meeting" button
@@ -141,7 +141,7 @@ class BBBMeeting {
     //for (const [key, value] of Object.entries(layout.screens)) {
     for (const screen of layout.screens) {
       console.log("\nProcessing screen: " + screen.name);
-      console.log("With join parameters: " + JSON.stringify(screen.bbb_join_parameters, null, 2) + "\n");
+      //console.log("With join parameters: " + JSON.stringify(screen.bbb_join_parameters, null, 2) + "\n");
 
       // convert the join parameters to a dictionary
       const joinParameters: {[key: string]: string} = {};
@@ -165,7 +165,7 @@ class BBBMeeting {
     const cameraScreenIndex = screensAsList.findIndex(([key, value]) => value.includes("CAMERAS_ONLY"));
     if (cameraScreenIndex !== -1) {
       const [camera_display] = screensAsList.splice(cameraScreenIndex, 1);
-      screensAsList.push(camera_display);
+      screensAsList.push(camera_display); // put the camera screen at the end of the list
     }
 
     for (const [screen, url] of screensAsList) {
@@ -181,8 +181,8 @@ class BBBMeeting {
       const partition = 'persist:windows-' + uuid();
 
       // Get old window if exists
-      let screenWindow = this.windows[screenDisplay.label];
-      delete this.windows[screenDisplay.label];
+      let screenWindow = this.windows[screenDisplay.id];
+      delete this.windows[screenDisplay.id];
 
       if (screenWindow == undefined) {
         console.log('Creating new window');
@@ -206,19 +206,19 @@ class BBBMeeting {
       // When leaving the BBB meeting (by visiting another website), BBB will show a confirmation dialog (are you sure blabla)
       // This dialog will prevent the loading of a new URL, so we handle this problem here in this event listener
       screenWindow.webContents.on('will-prevent-unload', (event) => {
-        console.log("Prevented unload detected, forcing unload...");
+        //console.log("Prevented unload detected, forcing unload...");
         event.preventDefault(); // This stops the confirmation dialog
         if(screenWindow) {
-          console.log(screenDisplay.label + ": Loading URL again: " + url);
+          //console.log("Screen: ", screenDisplay.id, " - Loading URL again: ", url);
           screenWindow.loadURL(url);
         }
       });
-      console.log('\n' + screenDisplay.label + ': Loading URL: ' + url);
+      //console.log('\nScreen: ', screenDisplay.id, ' - Loading URL: ' + url);
       await screenWindow.loadURL(url);
       // todo: do we need this timeout?
-      await new Promise(r => setTimeout(r, 2000));
-      console.log(screenDisplay.label + ': Loading of URL finished.\n');
-      newWindows[screenDisplay.label] = screenWindow;
+      await new Promise(r => setTimeout(r, 1000)); // slow down the opening of new windows and loading of urls
+      //console.log("Screen: ", screenDisplay.id + ' - Loading of URL finished.\n');
+      newWindows[screenDisplay.id] = screenWindow;
 
       if (url.includes('userdata-bbb_auto_join_audio=true')) {
         this.mediaScreen = {url: url, window: screenWindow};
@@ -233,6 +233,9 @@ class BBBMeeting {
     });
 
     this.windows = newWindows;
+
+    // todo: do we need this timeout?
+    await new Promise(r => setTimeout(r, 2000));
   }
 
   public toggleMute() {

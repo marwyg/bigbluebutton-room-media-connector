@@ -58,7 +58,7 @@ export class BBBGraphQl {
   private async requestSessionToken(): Promise<boolean> {
     try {
 
-      console.log('Join link used:', this.joinUrl);
+      //console.log('Join link used:', this.joinUrl);
 
       const response = await axios.get(this.joinUrl, {
         withCredentials: true,
@@ -70,16 +70,16 @@ export class BBBGraphQl {
 
       if (response.status === 302) {
         const redirectUrl = response.headers['location'];
-        console.log("Redirecting to: " + redirectUrl);
+        //console.log("Redirecting to: " + redirectUrl);
         const url = new URL(redirectUrl);
 
         this.sessionToken = url.searchParams.get('sessionToken');
         this.host = url.host;
         this.cookies = response.headers['set-cookie'];
-        console.log('cookies', this.cookies);
+        //console.log('cookies', this.cookies);
 
         if (!this.sessionToken) {
-          console.log('No session token found. Requesting again.');
+          //console.log('No session token found. Requesting again.');
           const response = await axios.get(redirectUrl, {
             withCredentials: true,
             maxRedirects: 0,
@@ -89,11 +89,11 @@ export class BBBGraphQl {
           });
           if (response.status === 302 || response.status === 200) {
             const urlWithSessionToken = new URL(response.headers['location']);
-            console.log("Url With Session Token: " + redirectUrl);
+            //console.log("Url With Session Token: " + redirectUrl);
             this.sessionToken = urlWithSessionToken.searchParams.get('sessionToken');
             this.cookies = response.headers['set-cookie'];
-            console.log("Redirected twice. Session token: " + this.sessionToken);
-            console.log("Cookies: " + this.cookies);
+            //console.log("Redirected twice. Session token: " + this.sessionToken);
+            //console.log("Cookies: " + this.cookies);
           }
           if (!this.sessionToken) {
             console.error('Failed to request session token.');
@@ -137,7 +137,7 @@ export class BBBGraphQl {
     console.log("USER_CURRENT_QUERY executed..");
 
     if (data && data?.user_current?.[0]?.authToken) {
-      console.log('IN getAuthToken: ', data);
+      //console.log('IN getAuthToken: ', data);
       this.authToken = data.user_current[0].authToken;
       this.userId = data.user_current[0].userId;
       return true;
@@ -184,7 +184,7 @@ export class BBBGraphQl {
     });
 
     // Check the result
-    console.log('userJoin result:', result);
+    //console.log('userJoin result:', result);
 
     if (!result.data.userJoinMeeting) {
       console.log('userJoinMeeting failed');
@@ -224,7 +224,7 @@ export class BBBGraphQl {
       const jSessionCookie = this.cookies
        ?.find(cookie => cookie.startsWith('JSESSIONID'))
        ?.split(';')[0];
-      console.log('jSessionCookie', jSessionCookie);
+      //console.log('jSessionCookie', jSessionCookie);
 
       // You need to override the WebSocket class to add the cookie
       class WebSocketWithCookie extends WebSocket {
@@ -289,7 +289,7 @@ export class BBBGraphQl {
         },
       });
 
-      console.log('graphQlClient: ', this.graphQlClient);
+      //console.log('graphQlClient: ', this.graphQlClient);
 
       const graphqlWsLink = new GraphQLWsLink(this.graphQlClient);
 
@@ -347,7 +347,7 @@ export class BBBGraphQl {
         userId: this.userId,
       },
     });
-    console.log('userJoin result:', result);
+    //console.log('userJoin result:', result);
   }
 
   public async toggleMute(newMutedState:boolean|undefined = undefined) {
@@ -375,13 +375,13 @@ export class BBBGraphQl {
       },
     });
     this.muted = newMutedState;
-    console.log('muted mutation result:', result);
+    //console.log('muted mutation result:', result);
     return this.muted;
   }
 
   public async toggleRaiseHand(newRaiseHandState:boolean|undefined = undefined) {
 
-    console.log("raise hand event: ", newRaiseHandState);
+    //console.log("raise hand event: ", newRaiseHandState);
 
     if (newRaiseHandState !== undefined) {
       this.raiseHand = !newRaiseHandState;
@@ -397,7 +397,7 @@ export class BBBGraphQl {
       )}
     `;
 
-    console.log("raising hand: ", newRaiseHandState);
+    //console.log("raising hand: ", newRaiseHandState);
 
     const result = await this.apolloClient.mutate({
       mutation: SET_RAISE_HAND_MUTATION,
@@ -407,7 +407,7 @@ export class BBBGraphQl {
       },
     });
     this.raiseHand = newRaiseHandState;
-    console.log('raiseHand mutation result:', result);
+    //console.log('raiseHand mutation result:', result);
     return this.raiseHand;
 
   }

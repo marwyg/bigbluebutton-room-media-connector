@@ -1,61 +1,57 @@
-import {IMeetingRoomProvider} from './IMeetingRoomProvider';
-import type {Config} from '../ConfigManager';
-import { error } from 'node:console';
+import {MeetingRoomProvider} from './MeetingRoomProvider';
+import type {Config, Meeting} from '../ConfigManager';
+import { ProviderMeetingInfo } from './ProviderMeetingInfo';
 
-interface Meeting {
-  id: string;
-  name: string;
-  description: string;
-  type: string;
+interface PilosMeetingInfo extends ProviderMeetingInfo {
   token: string;
 }
 
-export class PilosMeetingRoomProvider implements IMeetingRoomProvider {
+export class PilosMeetingRoomProvider implements MeetingRoomProvider {
 
-  async requestMeetingRooms(config: Config): Promise<Record<string, string>[]> {
-    const pilos_url = config.meeting_provider_url;
-    const meeting_id_token_dict: Record<string, string> = Object.fromEntries(
-      config.meetings
-        .map(({link}) => {
-          const parts = link.split('/');
-          const token = parts.pop();
-          const id = parts.pop();
-          return id && token ? [id, token] : [];
-        })
-        .filter(entry => entry.length > 0),
-    );
+  async requestMeetingRooms(meeting: Meeting): Promise<ProviderMeetingInfo> {
+
+    const link = meeting.link;
+    const pilos_url = link.split("/rooms/")[0];
+    const parts = link.split('/');
+    const token = parts.pop();
+    const id = parts.pop();
 
     // console.log('Loaded pilos url and meetings from config:', pilos_url, meeting_id_token_dict);
-
-    let meeting_list: Meeting[] = [];
-
     // console.log('Requesting meetings information from Pilos...');
 
-    for (const [id, token] of Object.entries(meeting_id_token_dict)) {
-      const pilos_room_url = `${pilos_url}/api/v1/rooms/${id}`;
-      // console.log(pilos_room_url);
-      const response = await fetch(pilos_room_url);
-      if (response.status == 403) {
-        throw new Error(`Pilos returned status 403 while trying to get room information, maybe you have to configure 'allow guests' in the room settings, but please check the following message from pilos: ${await response.text()}`);
-      }
-      const json = await response.json();
-      // console.log("Reponse json: ", json);
-      const data = json.data;
-      // console.log('Meeting information retrieved successfully:', data);
-      meeting_list.push({
-        id: id,
-        name: data.name,
-        description: data.short_description,
-        type: data.type.name,
-        token: token,
-      });
+    const pilos_room_url = `${pilos_url}/api/v1/rooms/${id}`;
+    // console.log(pilos_room_url);
+    const response = await fetch(pilos_room_url);
+    if (response.status == 403) {
+      throw new Error(`Pilos returned status 403 while trying to get room information, maybe you have to configure 'allow guests' in the room settings, but please check the following message from pilos: ${await response.text()}`);
     }
-    return meeting_list as unknown as Record<string, string>[];
+    // console.log(response);
+    const json = await response.json();
+    // console.log("Reponse json: ", json);
+    const data = json.data;
+    // console.log('Meeting information retrieved successfully:', data);
+
+    if (id === undefined || token === undefined) {
+      throw new Error("Id or Token was undefined");
+    }
+
+    const providerMeeting: PilosMeetingInfo = {
+      id: id,
+      name: data.name,
+      url: pilos_url,
+      provider: "pilos",
+      description: data.short_description,
+      type: data.type.name,
+      token: token,
+    };
+
+    return providerMeeting;
   }
 
   async getJoinUrl(meeting: any, config: Config): Promise<string> {
     meeting = meeting as Meeting;
-    const base_url = config.meeting_provider_url + '/api/v1/rooms/' + meeting.id;
+    //const base_url = config.meeting_provider_url + '/api/v1/rooms/' + meeting.id;
+    const base_url = meeting.url + '/api/v1/rooms/' + meeting.id;
     const pilos_start_url = base_url + '/start';
     const pilos_join_url = base_url + '/join'; // its the pilos join url not the bbb join url
 
@@ -92,4 +88,5 @@ export class PilosMeetingRoomProvider implements IMeetingRoomProvider {
     // console.log('BBB join URL retrieved successfully: ', data);
     return data.url;
   }
+
 }

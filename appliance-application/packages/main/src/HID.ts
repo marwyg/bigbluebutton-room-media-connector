@@ -1,20 +1,16 @@
+
 export interface HID {
   requireVerification(accept: () => void, reject: () => void): void;
-
   verificationAccepted(): void;
   verificationRejected(): void;
-
   connected(actions: HIDActions): void;
-
   disconnected(): void;
-
   close(): Promise<void>;
+  unlockLayoutKeys(): void;
 }
 
 export interface HIDActions {
   leave: () => void;
-  // mute: () => void;
-  // unmute: () => void;
   toggleMute: () => void;
   toggleRaiseHand: () => void;
   becomePresenter: () => void;

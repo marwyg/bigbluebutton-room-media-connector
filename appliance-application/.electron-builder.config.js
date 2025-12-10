@@ -29,7 +29,7 @@ module.exports = async function () {
     copyright: "Copyright © 2025 ${author}",
 
     linux: {
-      target: ["AppImage", "rpm"],
+      target: ["AppImage"],
       category: "Utility",
       icon: "buildResources/icon.png",
     },

@@ -1,16 +1,20 @@
-import { IMeetingRoomProvider } from './IMeetingRoomProvider';
+import { MeetingRoomProvider } from './MeetingRoomProvider';
 import { PilosMeetingRoomProvider } from './pilosMeetingRoomProvider';
+import { StudIPMeetingRoomProvider } from './studipMeetingRoomProvider';
 
-const providerMap: { [key: string]: new () => IMeetingRoomProvider } = {
+const providerMap: { [key: string]: new () => MeetingRoomProvider } = {
   pilos: PilosMeetingRoomProvider,
+  studip: StudIPMeetingRoomProvider
 };
 
-export function createMeetingRoomProvider(providerName: string): IMeetingRoomProvider {
-  const ProviderClass = providerMap[providerName];
+export function createMeetingRoomProviders(): { [key: string]: MeetingRoomProvider } {
 
-  if (!ProviderClass) {
-    throw new Error('Unknown meeting room provider: ${providerName}');
+  const providerInstances: { [key: string]: MeetingRoomProvider } = {};
+
+  for (const [providerId, ProviderClass] of Object.entries(providerMap)) {
+    const providerInstance = new ProviderClass();
+    providerInstances[providerId] = providerInstance;
   }
 
-  return new ProviderClass();
+  return providerInstances;
 }

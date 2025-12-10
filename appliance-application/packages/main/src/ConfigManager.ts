@@ -65,7 +65,7 @@ export const JoinParameterSchema = z.object({
 
 // Screen structure (contains join parameters)
 export const ScreenSchema = z.object({
-  name: z.string(),
+  name: z.union([z.string(), z.number()]), // label or ids of the screen
   bbb_join_parameters: z.array(JoinParameterSchema),
 });
 
@@ -87,6 +87,7 @@ export const MeetingSchema = z.object({
   link: z.string(),
   name: z.string().optional(),
   description: z.string().optional(),
+  provider: z.string(),
 });
 
 // Control server structure

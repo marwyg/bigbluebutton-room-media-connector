@@ -15,8 +15,6 @@ export class StreamDeckHID implements HID {
   static ACCEPT_BUTTON: StreamDeckButtonControlDefinitionLcdFeedback;
   static REJECT_BUTTON: StreamDeckButtonControlDefinitionLcdFeedback;
   static LEAVE_BUTTON: StreamDeckButtonControlDefinitionLcdFeedback;
-  // static MUTE_BUTTON: StreamDeckButtonControlDefinitionLcdFeedback;
-  // static UNMUTE_BUTTON: StreamDeckButtonControlDefinitionLcdFeedback;
 
   static TOGGLE_MUTE_BUTTON: StreamDeckButtonControlDefinitionLcdFeedback
   static TOGGLE_RAISEHAND_BUTTON: StreamDeckButtonControlDefinitionLcdFeedback
@@ -51,36 +49,25 @@ export class StreamDeckHID implements HID {
 
   private acceptCallback!: () => void;
   private rejectCallback!: () => void;
-
   private leaveCallback!: () => void;
-
-  // private muteCallback!: () => void;
-  // private unmuteCallback!: () => void;
-
   private toggleMuteCallback!: () => void;
   private becomePresenterCallback!: () => void;
   private raiseHandCallback!: () => void;
-
   private layout1Callback!: () => void;
   private layout2Callback!: () => void;
   private layout3Callback!: () => void;
 
   private isConnected!: boolean;
+  private layout_buttons_lock: boolean = false;
 
   constructor(streamDeck: StreamDeck) {
-
     console.log('StreamDeck constructor');
-
     this.streamDeck = streamDeck;
-
     this.streamDeck.clearPanel();
-
     this.streamDeck.setBrightness(100);
-
     this.initIcons().then(() => {
       this.showBBBScreen();
     });
-
 
     console.log('Initializing button listeners');
 
@@ -91,20 +78,11 @@ export class StreamDeckHID implements HID {
         if (button.index === StreamDeckHID.ACCEPT_BUTTON.index) {
           this.acceptCallback();
         }
-
         if (button.index === StreamDeckHID.REJECT_BUTTON.index) {
           this.rejectCallback();
         }
       }
-
       if (this.isConnected) {
-        // if (button.index === StreamDeckHID.MUTE_BUTTON.index) {
-        //   this.muteCallback();
-        // }
-
-        // if (button.index === StreamDeckHID.UNMUTE_BUTTON.index) {
-        //   this.unmuteCallback();
-        // }
 
         if (button.index === StreamDeckHID.TOGGLE_MUTE_BUTTON.index) {
           this.toggleMuteCallback();
@@ -115,21 +93,26 @@ export class StreamDeckHID implements HID {
         if (button.index === StreamDeckHID.TOGGLE_RAISEHAND_BUTTON.index) {
           this.raiseHandCallback();
         }
-
         if (button.index === StreamDeckHID.LEAVE_BUTTON.index) {
           this.leaveCallback();
         }
-
-        if (button.index === StreamDeckHID.LAYOUT1_BUTTON.index) {
-          this.layout1Callback();
-        }
-        if (button.index === StreamDeckHID.LAYOUT2_BUTTON.index) {
-          this.layout2Callback();
-        }
-        if (button.index === StreamDeckHID.LAYOUT3_BUTTON.index) {
-          this.layout3Callback();
+        if (!this.layout_buttons_lock) {
+          if (button.index === StreamDeckHID.LAYOUT1_BUTTON.index) {
+            this.layout_buttons_lock = true;
+            this.layout1Callback();
+          }
+          if (button.index === StreamDeckHID.LAYOUT2_BUTTON.index) {
+            this.layout_buttons_lock = true;
+            this.layout2Callback();
+          }
+          if (button.index === StreamDeckHID.LAYOUT3_BUTTON.index) {
+            this.layout_buttons_lock = true;
+            this.layout3Callback();
+          }
         }
       }
+
+      console.log("key press finished")
     });
 
     this.streamDeck.on('error', error => {
@@ -154,21 +137,15 @@ export class StreamDeckHID implements HID {
 
     controls.forEach(control => {
       if (control.type === 'button' && control.feedbackType == 'lcd') {
-        // if (control.row == 0 && control.column == 0) {
-        //   StreamDeckHID.BBB_BUTTON = control;
-        // }
         if (control.row == 0 && control.column == columns) {
           StreamDeckHID.LEAVE_BUTTON = control;
         }
         if (control.row == 1 && control.column == 0) {
           StreamDeckHID.ACCEPT_BUTTON = control;
-          //StreamDeckHID.UNMUTE_BUTTON = control;
         }
         if (control.row == 1 && control.column == 1) {
           StreamDeckHID.REJECT_BUTTON = control;
-          //StreamDeckHID.MUTE_BUTTON = control;
         }
-
         if (control.row == 2 && control.column == 0) {
           StreamDeckHID.TOGGLE_RAISEHAND_BUTTON = control;
         }
@@ -178,7 +155,6 @@ export class StreamDeckHID implements HID {
         if (control.row == 2 && control.column == 2) {
           StreamDeckHID.BECOME_PRESENTER_BUTTON = control;
         }
-
         if (control.row == 0 && control.column == 0) {
           StreamDeckHID.BBB_BUTTON = control;
           StreamDeckHID.LAYOUT1_BUTTON = control;
@@ -235,13 +211,13 @@ export class StreamDeckHID implements HID {
   }
 
   async getButtonImageBuffer(button: StreamDeckButtonControlDefinitionLcdFeedback, image: string): Promise<Buffer> {
-    console.log('Loading ' + image);
+    // console.log('Loading ' + image);
 
     const imagePath = path.resolve(__dirname, '../assets/' + image);
-    console.log('Resolved image path: ' + imagePath);
+    //console.log('Resolved image path: ' + imagePath);
 
     if (fs.existsSync(imagePath)) {
-      console.log('Image exists in path: ' + imagePath);
+      //console.log('Image exists in path: ' + imagePath);
       return await sharp(imagePath)
       .flatten()
       .resize(button.pixelSize.width, button.pixelSize.height)
@@ -255,10 +231,8 @@ export class StreamDeckHID implements HID {
 
   requireVerification(accept: () => void, reject: () => void): void {
     this.hasVerificationPending = true;
-
     this.acceptCallback = accept;
     this.rejectCallback = reject;
-
     this.showVerificationButtons();
   }
 
@@ -299,15 +273,10 @@ export class StreamDeckHID implements HID {
     this.streamDeck.fillKeyBuffer(StreamDeckHID.TOGGLE_RAISEHAND_BUTTON.index, handRaised ? this.HAND_IMG : this.HAND_IMG);
   }
 
-  selectLayout(layout: number): void {
+  async selectLayout(layout: number): Promise<void> {
     if (layout < 0 || layout > 2) {
       throw new Error('Invalid layout index');
     }
-
-    this.streamDeck.clearKey(StreamDeckHID.LAYOUT1_BUTTON.index);
-    this.streamDeck.clearKey(StreamDeckHID.LAYOUT2_BUTTON.index);
-    this.streamDeck.clearKey(StreamDeckHID.LAYOUT3_BUTTON.index);
-
     if (layout == 0) {
       this.streamDeck.fillKeyBuffer(StreamDeckHID.LAYOUT1_BUTTON.index, this.LAYOUT1_REVERSE_IMG);
       this.streamDeck.fillKeyBuffer(StreamDeckHID.LAYOUT2_BUTTON.index, this.LAYOUT2_IMG);
@@ -325,6 +294,10 @@ export class StreamDeckHID implements HID {
     }
   }
 
+  unlockLayoutKeys() {
+    this.layout_buttons_lock = false;
+  }
+
   async close(): Promise<void> {
     this.streamDeck.removeAllListeners();
     await this.streamDeck.close();
@@ -335,26 +308,19 @@ export class StreamDeckHID implements HID {
     this.streamDeck.clearPanel();
 
     this.streamDeck.fillKeyBuffer(StreamDeckHID.BBB_BUTTON.index, this.BBB_IMG);
-    // this.streamDeck.fillKeyBuffer(StreamDeckHID.MUTE_BUTTON.index, this.MUTE_IMG);
-    // this.streamDeck.fillKeyBuffer(StreamDeckHID.UNMUTE_BUTTON.index, this.UNMUTE_IMG);
     this.streamDeck.fillKeyBuffer(StreamDeckHID.LEAVE_BUTTON.index, this.LEAVE_IMG);
-
     this.streamDeck.fillKeyBuffer(StreamDeckHID.LAYOUT1_BUTTON.index, this.LAYOUT1_REVERSE_IMG); // TODO: currently always layout 1 is selected at start
     this.streamDeck.fillKeyBuffer(StreamDeckHID.LAYOUT2_BUTTON.index, this.LAYOUT2_IMG);
     this.streamDeck.fillKeyBuffer(StreamDeckHID.LAYOUT3_BUTTON.index, this.LAYOUT3_IMG);
-
     this.streamDeck.fillKeyBuffer(StreamDeckHID.TOGGLE_MUTE_BUTTON.index, this.MUTE_IMG);
     this.streamDeck.fillKeyBuffer(StreamDeckHID.BECOME_PRESENTER_BUTTON.index, this.PRESENTER_IMG);
     this.streamDeck.fillKeyBuffer(StreamDeckHID.TOGGLE_RAISEHAND_BUTTON.index, this.HAND_IMG);
 
     this.isConnected = true;
-    // this.muteCallback = actions.mute;
-    // this.unmuteCallback = actions.unmute;
     this.leaveCallback = actions.leave;
     this.toggleMuteCallback = actions.toggleMute;
     this.becomePresenterCallback = actions.becomePresenter;
     this.raiseHandCallback = actions.toggleRaiseHand;
-
     this.layout1Callback = actions.layout1;
     this.layout2Callback = actions.layout2;
     this.layout3Callback = actions.layout3;
