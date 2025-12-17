@@ -46,7 +46,7 @@ class BBBMeeting {
 
   private onUsersLeft(callback: () => void) {
     const getMeetingEndData = gql`
-      subscription getUserCurrent {
+      subscription Patched_userCurrentSubscription {
         user_current {
           isModerator
           logoutUrl
